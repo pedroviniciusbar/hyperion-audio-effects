@@ -17,15 +17,15 @@ import json_client
 
 # Change this to your Pis / Hyperion data. There is no harm done if wrong data is set here.
 # The connection will simply time out.
-hyperion_host = '192.168.178.32'
+hyperion_host = '192.168.0.15'
 hyperion_port = 19444
 
 # Change this according to your led configuration.
-horizontal_led_num = 17
-vertical_led_num = 9
-first_led_offset_num = 17
-leds_in_clockwise_direction = False
-has_corner_leds = False
+horizontal_led_num = 48
+vertical_led_num = 30
+first_led_offset_num = 103
+leds_in_clockwise_direction = True
+has_corner_leds = True
 
 
 def run_effect():

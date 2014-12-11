@@ -1,15 +1,10 @@
-hyperion_effects_dev_kit
-=======================
+Hyperion Gstreamer effects
+==========================
 
-Some python modules to simplify the hyperion effects development.  
-Created with python 2.7  
+Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdzwan/hyperion). W.I.P. Requires `Tkinter` and `pygst`.
 
-Develop code for hyperion effects.  
-See what your effect does in a gui.  
-Send the colordata of your effect to hyperion's Json server.  
+- Based on https://github.com/Fabi1080/hyperion_effects_dev_kit
 
+- Also uses this neat wrapper (slightly modified) https://github.com/Wintervenom/gst-spectrumdump
 
-Modify the effects.py module to develop your effect.  
-The hyperion.py module holds functions the fake the real hyperion functions.  
-The gui.py module holds functions to open a window which displays the led colors.  
-The json_client.py module contains functions to communicate with the json server.  
+Gstreamer pipeline seems to freeze often (I just keep killing the python process when that happens).

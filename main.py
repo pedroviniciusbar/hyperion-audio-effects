@@ -41,7 +41,7 @@ def main():
                   has_corner_leds)
 
     # Open the connection to the json server. Uncomment if you do not want to send data to the server.
-    json_client.open_connection(hyperion_host, hyperion_port)
+    # json_client.open_connection(hyperion_host, hyperion_port)
 
     # create own thread for the effect
     effect_thread = Thread(target=run_effect)
@@ -55,7 +55,7 @@ def main():
     effect_thread.join()
 
     # close potential connections
-    json_client.close_connection()
+    # json_client.close_connection()
     print("Exiting")
 
 

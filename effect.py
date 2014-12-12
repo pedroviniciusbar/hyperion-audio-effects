@@ -37,9 +37,14 @@ class Effect(object):
         # Minimum bar level
         self.volume_min = 80
 
+        # Helper for color function
+        self.height_float = float(self.height)
+
         self.color_map = []
         for i in range(0, self.height):
             self.color_map.append(self.get_led_color(i))
+
+
 
 
     def receive_magnitudes(self, magnitudes):
@@ -63,7 +68,7 @@ class Effect(object):
 
     def get_led_color(self, i):
         # Gradient from green to red
-        return (int(255*(i/30.0)), int(255*((30-i)/30.0)), 0)
+        return (int(255*(i/self.height_float)), int(255*((30-i)/self.height_float)), 0)
 
 
     def update_leds(self):
@@ -100,7 +105,7 @@ class Effect(object):
 
 
 effect = Effect()
-spectrum = GstSpectrumDump(vumeter=True, callback=effect.receive_magnitudes)
+spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=True, callback=effect.receive_magnitudes)
 spectrum.start()
 
 while not hyperion.abort():

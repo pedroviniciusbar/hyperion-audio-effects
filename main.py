@@ -13,6 +13,8 @@ import gui
 import hyperion
 import runpy
 import json_client
+import argparse
+import time
 
 
 # Change this to your Pis / Hyperion data. There is no harm done if wrong data is set here.
@@ -27,6 +29,10 @@ first_led_offset_num = 103
 leds_in_clockwise_direction = True
 has_corner_leds = True
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--gui", help="enable GUI", action="store_true")
+parser.add_argument("--json", help="enable JSON client", action="store_true")
+
 
 def run_effect():
     """
@@ -37,25 +43,39 @@ def run_effect():
 
 
 def main():
+
+    args = parser.parse_args()
+
     hyperion.init(horizontal_led_num, vertical_led_num, first_led_offset_num, leds_in_clockwise_direction,
                   has_corner_leds)
 
-    # Open the connection to the json server. Uncomment if you do not want to send data to the server.
-    # json_client.open_connection(hyperion_host, hyperion_port)
+    if args.json:
+        # Open the connection to the json server. Uncomment if you do not want to send data to the server.
+        json_client.open_connection(hyperion_host, hyperion_port)
 
     # create own thread for the effect
     effect_thread = Thread(target=run_effect)
 
     effect_thread.start()
-    gui.createWindow()
 
-    # After the window was closed abort the effect through the fake hyperion module
-    hyperion.set_abort(True)
+    if args.gui:
+        gui.createWindow()
+
+        # After the window was closed abort the effect through the fake hyperion module
+        hyperion.set_abort(True)
+    else:
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            hyperion.set_abort(True)
+
     # wait for the thread to stop
     effect_thread.join()
 
-    # close potential connections
-    # json_client.close_connection()
+    if args.json:
+        # close potential connections
+        json_client.close_connection()
     print("Exiting")
 
 

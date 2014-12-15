@@ -68,12 +68,14 @@ class Effect(object):
 
     def get_led_color(self, i):
         # Gradient from green to red
-        return (int(255*(i/self.height_float)), int(255*((30-i)/self.height_float)), 0)
+        return (int(255*(i/self.height_float)), int(255*((self.height_float-i)/self.height_float)), 0)
 
 
     def update_leds(self):
 
         self.processing = True
+
+        print self.magnitudes
 
         # We get 4 magnitudes from gst (not sure about R/L order)
         # [0] Left, [1] left peak, [2] right, [3] right peak

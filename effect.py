@@ -111,7 +111,7 @@ spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=True, callback=effect.
 spectrum.start()
 
 while not hyperion.abort():
-    spectrum.iterate()
+    # spectrum.iterate()
     hyperion.setColor(effect.ledsData)
     time.sleep(0.05)
 

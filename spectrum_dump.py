@@ -20,7 +20,7 @@
 # except ImportError:
 #     pass
 import sys
-
+from threading import Thread
 import gi
 gi.require_version('Gst', '1.0')
 from gi.repository import GObject, Gst, GLib
@@ -271,8 +271,10 @@ class GstSpectrumDump(object):
             spectrum = 'spectrum message=true {} bands={} threshold=-{} multi-channel=true'
             spectrum = spectrum.format(interval, self.bands, self.threshold)
             pipeline.append(spectrum)
-        pipeline.append('fakesink sync=false')
+        pipeline.append('fakesink')
         self.pipeline = Gst.parse_launch(' ! '.join(pipeline))
+
+        print ' ! '.join(pipeline)
         # self.pipeline = Gst.Pipeline()
         # for element in pipeline:
         #     self.pipeline.add(element)
@@ -302,7 +304,12 @@ class GstSpectrumDump(object):
     def start(self):
         self.start_pipeline()
         self.loop = GLib.MainLoop()
-        self.loop_context = self.loop.get_context()
+        # self.loop_context = self.loop.get_context()
+
+        self.loop_thread = Thread(target=self.loop.run)
+        self.loop_thread.daemon = True
+        self.loop_thread.start()
+
         stdout("Pipeline initialized.")
 
 
@@ -313,4 +320,8 @@ class GstSpectrumDump(object):
     def stop(self):
         stdout("Stopping pipeline...")
         self.stop_pipeline()
+        # Quit the MainLoop
+        self.loop.quit()
+        # Wait for the thread
+        self.loop_thread.join()
         stdout("Done.")

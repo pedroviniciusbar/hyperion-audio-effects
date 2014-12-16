@@ -1,11 +1,10 @@
-Hyperion Gstreamer audio effects
-================================
+Hyperion audio effects
+======================
 
 Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdzwan/hyperion). Requires `Tkinter` (for dev gui) and `pygst`.
 
 - Based on https://github.com/Fabi1080/hyperion_effects_dev_kit
 - Also uses this neat wrapper (slightly modified) https://github.com/Wintervenom/gst-spectrumdump
-- Gstreamer pipeline seems to freeze often (I just keep killing the python process when that happens, issue with threads maybe?)
 - Tested with leds using the json-connection: https://www.youtube.com/watch?v=sC_dO7YTh4o
 - Pull requests or improvement suggestions welcome
 - Not sure yet how to get the hyperion effects engine to run pygst

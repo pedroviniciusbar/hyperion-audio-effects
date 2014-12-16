@@ -11,7 +11,7 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 - Tested without pulseaudio (alsa only)
 - Currently trying to figure out what causes delay
 
-### Installation in Debian
+### Installation on Debian
 
 1. Install `python-gst0.10` and `python-tk` (if you want gui)
 2. Set hyperion settings in main.py

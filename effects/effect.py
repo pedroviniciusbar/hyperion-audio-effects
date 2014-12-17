@@ -1,12 +1,10 @@
 # Hyperion audio visualization effect by RanzQ
 # ranzq87 [(at)] gmail.com
 
-# Install python-gst0.10
-
-import hyperion
+from devkit import hyperion
 import time
 
-from spectrum_dump import GstSpectrumDump
+from effects.spectrum_dump import GstSpectrumDump
 
 
 BLACK = (0, 0, 0)

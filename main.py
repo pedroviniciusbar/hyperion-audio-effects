@@ -9,10 +9,10 @@ Created on 27.11.2014
 '''
 
 from threading import Thread
-import gui
-import hyperion
+from devkit import gui
+from devkit import hyperion
+from devkit import json_client
 import runpy
-import json_client
 import argparse
 import time
 
@@ -32,14 +32,15 @@ has_corner_leds = True
 parser = argparse.ArgumentParser()
 parser.add_argument("--gui", help="enable GUI", action="store_true")
 parser.add_argument("--json", help="enable JSON client", action="store_true")
+parser.add_argument("--effect", help="select effect", default="effect")
 
 
-def run_effect():
+def run_effect(effect='effect'):
     """
     Runs the module effect. Copy any hyperion effect code in this module or create your own.
     Note that effects that call hyperion.setColor(r, g, b) or hyperion.setImage(img) are not supported.
     """
-    runpy.run_module("effect")
+    runpy.run_module("effects." + effect)
 
 
 def main():
@@ -53,8 +54,10 @@ def main():
         # Open the connection to the json server. Uncomment if you do not want to send data to the server.
         json_client.open_connection(hyperion_host, hyperion_port)
 
+    print args.effect
+
     # create own thread for the effect
-    effect_thread = Thread(target=run_effect)
+    effect_thread = Thread(target=run_effect, kwargs={'effect': args.effect})
 
     effect_thread.start()
 

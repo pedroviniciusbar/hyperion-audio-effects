@@ -1,5 +1,5 @@
 ### GStreamer Spectrum Dump ####
-# Modified for hyperion effect by RanzQ
+# Modified for hyperion effect and Gstreamer 1.0 by RanzQ
 # ranzq87 [(at)] gmail.com
 #
 # Original:
@@ -8,17 +8,10 @@
 # Wintervenom [(at)] gmail.com
 ################################
 # Dependencies:
-# gi (python-gst0.10)
-#
-# Optional Dependencies:
-# gconf (python2-gconf)
+# PyGI (python-gi)
 #
 #################################
 
-# try:
-#     import gconf
-# except ImportError:
-#     pass
 import sys
 from threading import Thread
 import gi
@@ -30,8 +23,6 @@ import math
 GObject.threads_init()
 Gst.init(None)
 
-# VERSION = 20111005-1
-#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 
 def stdout(message):
     """
@@ -222,21 +213,25 @@ class GstSpectrumDump(object):
                     cutoff = int(round(self.bands * (7/8.0), 0))
                 else:
                     cutoff = None
-                magnitudes = s.get_value('magnitude')[0][:cutoff]
-                if not self.db:
-                    if self.logamplify:
-                        magnitudes = [self.dbtopct(db, i) for i, db
-                                      in enumerate(magnitudes)]
-                    else:
-                        magnitudes = [self.dbtopct(db) for i, db
-                                      in enumerate(magnitudes)]
-                if not self.raw:
-                    magnitudes = self.scale(magnitudes, self.bands)
-                magnitudes = [self.round(m) for m in magnitudes]
+                mags = s.get_value('magnitude')
+                # print len(mags)
+                return True
+                # magnitudes = s.get_value('magnitude')[0][:cutoff]
+                # if not self.db:
+                #     if self.logamplify:
+                #         magnitudes = [self.dbtopct(db, i) for i, db
+                #                       in enumerate(magnitudes)]
+                #     else:
+                #         magnitudes = [self.dbtopct(db) for i, db
+                #                       in enumerate(magnitudes)]
+                # if not self.raw:
+                #     magnitudes = self.scale(magnitudes, self.bands)
+                # magnitudes = [self.round(m) for m in magnitudes]
             elif name == 'level' and s.has_field('peak') and s.has_field('decay'):
                 magnitudes = []
                 peaks = s.get_value('peak')
                 decays = s.get_value('decay')
+                # print len(peaks)
                 for channel in range(0, min(self.bands, len(peaks))):
                     peak = max(-self.threshold, min(0, peaks[channel]))
                     decay = max(-self.threshold, min(0, decays[channel]))

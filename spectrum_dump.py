@@ -15,19 +15,20 @@
 #
 #################################
 
-try:
-    import gconf
-except ImportError:
-    pass
+# try:
+#     import gconf
+# except ImportError:
+#     pass
 import sys
-
-import pygst
-pygst.require("0.10")
-import gobject, gst
+from threading import Thread
+import gi
+gi.require_version('Gst', '1.0')
+from gi.repository import GObject, Gst, GLib
 
 import math
 
-gobject.threads_init()
+GObject.threads_init()
+Gst.init(None)
 
 # VERSION = 20111005-1
 #sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
@@ -110,18 +111,19 @@ class GstSpectrumDump(object):
         self.gainhits = 0
         self.origamp = self.amplify
         if not self.source:
-            defaultsrc = 'alsasrc'
-            try:
-                conf = gconf.client_get_default()
-                source = conf.get('/system/gstreamer/%d.%d/default/audiosrc' %
-                                  gst.gst_version[:-1])
-                if source:
-                    self.source = source.get_string()
-                else:
-                    self.source = defaultsrc
-            except NameError:
-                stderr('Python2 GConf module not installed; using default source.')
-                self.source = defaultsrc
+            self.source = 'autoaudiosrc'
+            # defaultsrc = 'alsasrc'
+            # try:
+            #     conf = gconf.client_get_default()
+            #     source = conf.get('/system/gstreamer/%d.%d/default/audiosrc' %
+            #                       Gst.gst_version[:-1])
+            #     if source:
+            #         self.source = source.get_string()
+            #     else:
+            #         self.source = defaultsrc
+            # except NameError:
+            #     stderr('Python2 GConf module not installed; using default source.')
+            #     self.source = defaultsrc
         elif self.source.startswith('mpd'):
             fifo = self.source.split(' ', 1)
             fifo = fifo[1] if len(fifo) > 1 else '/tmp/mpd.fifo'
@@ -204,8 +206,16 @@ class GstSpectrumDump(object):
 
 
     def on_message(self, bus, message):
+
+        # We should return false if the pipeline has stopped
+        if not self.running:
+            return False
+
         try:
-            s = message.structure
+            # s = message.structure
+            s = message.get_structure()
+            if not s:
+                return
             name = s.get_name()
             if name == 'spectrum':
                 if self.bands > 40:
@@ -223,11 +233,13 @@ class GstSpectrumDump(object):
                 if not self.raw:
                     magnitudes = self.scale(magnitudes, self.bands)
                 magnitudes = [self.round(m) for m in magnitudes]
-            elif name == 'level':
+            elif name == 'level' and s.has_field('peak') and s.has_field('decay'):
                 magnitudes = []
-                for channel in range(0, min(self.bands, len(s['peak']))):
-                    peak = max(-self.threshold, min(0, s['peak'][channel]))
-                    decay = max(-self.threshold, min(0, s['decay'][channel]))
+                peaks = s.get_value('peak')
+                decays = s.get_value('decay')
+                for channel in range(0, min(self.bands, len(peaks))):
+                    peak = max(-self.threshold, min(0, peaks[channel]))
+                    decay = max(-self.threshold, min(0, decays[channel]))
                     if not self.db:
                         if self.logamplify:
                             peak = self.dbtopct(peak, peak)
@@ -253,6 +265,7 @@ class GstSpectrumDump(object):
 
 
     def start_pipeline(self):
+        self.running = True
         pipeline = [self.source]
         interval = 'interval={0}'.format(1000000 * self.interval)
         if self.vumeter:
@@ -261,8 +274,11 @@ class GstSpectrumDump(object):
             spectrum = 'spectrum message=true {} bands={} threshold=-{} multi-channel=true'
             spectrum = spectrum.format(interval, self.bands, self.threshold)
             pipeline.append(spectrum)
-        pipeline.append('fakesink sync=false')
-        self.pipeline = gst.parse_launch(' ! '.join(pipeline))
+        pipeline.append('fakesink')
+        self.pipeline = Gst.parse_launch(' ! '.join(pipeline))
+        # self.pipeline = Gst.parse_launch('alsasrc ! level message=true in ! fakesink')
+
+        print ' ! '.join(pipeline)
         # self.pipeline = Gst.Pipeline()
         # for element in pipeline:
         #     self.pipeline.add(element)
@@ -270,32 +286,50 @@ class GstSpectrumDump(object):
         self.bus = self.pipeline.get_bus()
         self.bus.enable_sync_message_emission()
         self.bus.add_signal_watch()
-        self.conn = self.bus.connect("message::element", self.on_message)
-        self.pipeline.set_state(gst.STATE_PLAYING)
+        # self.bus.add_signal_watch_full(GLib.PRIORITY_DEFAULT)
+        self.conn = self.bus.connect('message', self.on_message)
+        # self.source_id = self.bus.add_watch(GLib.PRIORITY_DEFAULT, self.on_message, None)
+        stdout("Bus connected.")
+        self.pipeline.set_state(Gst.State.PLAYING)
+        stdout("Pipeline STATE_PLAYING set.")
 
 
     def stop_pipeline(self):
+        self.running = False
         if self.pipeline:
             self.bus.disconnect(self.conn)
+            # GLib.Source.remove(self.source_id) # Not working?
             stdout("Bus disconnected.")
             self.bus.remove_signal_watch()
             stdout("Signal watch removed.")
-            self.pipeline.set_state(gst.STATE_NULL)
+            self.pipeline.set_state(Gst.State.NULL)
             stdout("Pipeline STATE_NULL set.")
 
 
     def start(self):
+
+        stdout(Gst.version())
+
         self.start_pipeline()
-        self.loop = gobject.MainLoop()
-        self.loop_context = self.loop.get_context()
+        self.loop = GLib.MainLoop()
+        # self.loop_context = self.loop.get_context()
+
+        self.loop_thread = Thread(target=self.loop.run)
+        self.loop_thread.daemon = True
+        self.loop_thread.start()
+
         stdout("Pipeline initialized.")
 
 
     def iterate(self):
-        self.loop_context.iteration(False)
+        self.loop_context.iteration(False) # True = Block until any events dispatch
 
 
     def stop(self):
         stdout("Stopping pipeline...")
         self.stop_pipeline()
+        # Quit the MainLoop
+        self.loop.quit()
+        # Wait for the thread
+        self.loop_thread.join()
         stdout("Done.")

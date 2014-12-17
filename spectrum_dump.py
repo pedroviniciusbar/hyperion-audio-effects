@@ -211,10 +211,11 @@ class GstSpectrumDump(object):
         if not self.running:
             return False
 
-        print message
-
         try:
-            s = message.structure
+            # s = message.structure
+            s = message.get_structure()
+            if not s:
+                return
             name = s.get_name()
             if name == 'spectrum':
                 if self.bands > 40:
@@ -232,11 +233,13 @@ class GstSpectrumDump(object):
                 if not self.raw:
                     magnitudes = self.scale(magnitudes, self.bands)
                 magnitudes = [self.round(m) for m in magnitudes]
-            elif name == 'level':
+            elif name == 'level' and s.has_field('peak') and s.has_field('decay'):
                 magnitudes = []
-                for channel in range(0, min(self.bands, len(s['peak']))):
-                    peak = max(-self.threshold, min(0, s['peak'][channel]))
-                    decay = max(-self.threshold, min(0, s['decay'][channel]))
+                peaks = s.get_value('peak')
+                decays = s.get_value('decay')
+                for channel in range(0, min(self.bands, len(peaks))):
+                    peak = max(-self.threshold, min(0, peaks[channel]))
+                    decay = max(-self.threshold, min(0, decays[channel]))
                     if not self.db:
                         if self.logamplify:
                             peak = self.dbtopct(peak, peak)
@@ -273,6 +276,7 @@ class GstSpectrumDump(object):
             pipeline.append(spectrum)
         pipeline.append('fakesink')
         self.pipeline = Gst.parse_launch(' ! '.join(pipeline))
+        # self.pipeline = Gst.parse_launch('alsasrc ! level message=true in ! fakesink')
 
         print ' ! '.join(pipeline)
         # self.pipeline = Gst.Pipeline()
@@ -282,8 +286,9 @@ class GstSpectrumDump(object):
         self.bus = self.pipeline.get_bus()
         self.bus.enable_sync_message_emission()
         self.bus.add_signal_watch()
-        # self.conn = self.bus.connect("message::element", self.on_message)
-        self.source_id = self.bus.add_watch(GLib.PRIORITY_DEFAULT, self.on_message, None)
+        # self.bus.add_signal_watch_full(GLib.PRIORITY_DEFAULT)
+        self.conn = self.bus.connect('message', self.on_message)
+        # self.source_id = self.bus.add_watch(GLib.PRIORITY_DEFAULT, self.on_message, None)
         stdout("Bus connected.")
         self.pipeline.set_state(Gst.State.PLAYING)
         stdout("Pipeline STATE_PLAYING set.")
@@ -292,7 +297,7 @@ class GstSpectrumDump(object):
     def stop_pipeline(self):
         self.running = False
         if self.pipeline:
-            # self.bus.disconnect(self.conn)
+            self.bus.disconnect(self.conn)
             # GLib.Source.remove(self.source_id) # Not working?
             stdout("Bus disconnected.")
             self.bus.remove_signal_watch()
@@ -302,6 +307,9 @@ class GstSpectrumDump(object):
 
 
     def start(self):
+
+        stdout(Gst.version())
+
         self.start_pipeline()
         self.loop = GLib.MainLoop()
         # self.loop_context = self.loop.get_context()

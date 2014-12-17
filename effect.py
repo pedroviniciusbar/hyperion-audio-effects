@@ -75,8 +75,6 @@ class Effect(object):
 
         self.processing = True
 
-        print self.magnitudes
-
         # We get 4 magnitudes from gst (not sure about R/L order)
         # [0] Left, [1] left peak, [2] right, [3] right peak
 
@@ -107,7 +105,7 @@ class Effect(object):
 
 
 effect = Effect()
-spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=True, callback=effect.receive_magnitudes)
+spectrum = GstSpectrumDump(source='alsasrc', vumeter=True, callback=effect.receive_magnitudes)
 spectrum.start()
 
 while not hyperion.abort():

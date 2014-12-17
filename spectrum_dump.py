@@ -217,12 +217,12 @@ class GstSpectrumDump(object):
             if not s:
                 return
             name = s.get_name()
-            if name == 'spectrum':
+            if name == 'spectrum' and s.has_field('magnitude'):
                 if self.bands > 40:
                     cutoff = int(round(self.bands * (7/8.0), 0))
                 else:
                     cutoff = None
-                magnitudes = s['magnitude'][0][:cutoff]
+                magnitudes = s.get_value('magnitude')[0][:cutoff]
                 if not self.db:
                     if self.logamplify:
                         magnitudes = [self.dbtopct(db, i) for i, db
@@ -271,7 +271,7 @@ class GstSpectrumDump(object):
         if self.vumeter:
             pipeline.append('level message=true {}'.format(interval))
         else:
-            spectrum = 'spectrum message=true {} bands={} threshold=-{} multi-channel=true'
+            spectrum = 'spectrum {} bands={} threshold=-{} multi-channel=true'
             spectrum = spectrum.format(interval, self.bands, self.threshold)
             pipeline.append(spectrum)
         pipeline.append('fakesink')

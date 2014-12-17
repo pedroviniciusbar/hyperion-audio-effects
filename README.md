@@ -1,6 +1,10 @@
 Hyperion audio effects
 ======================
 
+## README outdated, using PyGI (gstreamer1.0) instead of pygst (gstreamer0.10)
+
+* New test video: https://www.youtube.com/watch?v=2Htkz8nhu-E
+
 Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdzwan/hyperion). Requires `Tkinter` (for dev gui) and `pygst`.
 
 - Based on https://github.com/Fabi1080/hyperion_effects_dev_kit
@@ -9,7 +13,6 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 - Pull requests or improvement suggestions welcome
 - Not sure yet how to get the hyperion effects engine to run pygst
 - Tested without pulseaudio (alsa only)
-- Currently trying to figure out what causes delay
 
 ### Installation on Debian
 

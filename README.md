@@ -11,8 +11,9 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 - Pull requests or improvement suggestions welcome
 - Not sure yet how to get the hyperion effects engine to import PyGI
 - Tested without pulseaudio (alsa only)
+- You can put your own effects to `effects/` (copy `effect.py`) and then it can be passed as `--effect <filename>`
 
-### Installation on Debian
+### Installation and running on Debian
 
 1. Install Gstreamer 1.0 and PyGI: `apt-get install python-gi gir1.2-glib-2.0 gir1.2-gnomebluetooth-1.0 gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 gstreamer1.0-alsa gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-pulseaudio gstreamer1.0-tools gstreamer1.0-x libgstreamer-plugins-base1.0-0 libgstreamer1.0-0` (this is what I have now installed, not sure if all of them are required)
 2. Install Tkinter for GUI: `apt-get install python-tk`
@@ -23,3 +24,22 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 7. Run `python main.py` (`--gui` for gui, `--json` for network connection)
 8. Play some audio
 9. Levels should be drawn to gui, also sent to hyperion if json enabled
+10. Exit by closing the GUI or Ctrl+c
+
+### Installation and running on Windows *
+
+1. Install Python 2.7 (set python to PATH)
+2. Install needed components from PyGI AIO: http://sourceforge.net/projects/pygobjectwin32/files/
+   - Do you have portable? No
+   - Choose destination: 2.7
+   - Choose packages: Base packages, Gst-plugins, Gst-plugins-extra, Gstreamer
+   - Do you want classic? No
+   - Install
+3. Select "Stereo mix" as recording device (if available, or mic)
+3. Set hyperion settings in main.py
+4. Run `python main.py` (`--gui` for gui, `--json` for network connection)
+5. Play some audio
+6. Levels should be drawn to gui, also sent to hyperion if json enabled
+7. Exit by closing the GUI or Ctrl+c
+
+\* Trying to figure out what is the bottleneck on Windows, doesn't run very smoothly

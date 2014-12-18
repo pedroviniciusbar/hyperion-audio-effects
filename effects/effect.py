@@ -103,7 +103,7 @@ class Effect(object):
 
 
 effect = Effect()
-spectrum = GstSpectrumDump(source='alsasrc', vumeter=True, callback=effect.receive_magnitudes)
+spectrum = GstSpectrumDump(source='alsasrc', vumeter=True, quiet=True, callback=effect.receive_magnitudes)
 spectrum.start()
 
 while not hyperion.abort():

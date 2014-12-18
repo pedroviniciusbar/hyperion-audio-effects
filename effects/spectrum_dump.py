@@ -13,6 +13,8 @@
 #################################
 
 import sys
+import json
+import re
 from threading import Thread
 import gi
 gi.require_version('Gst', '1.0')
@@ -124,6 +126,34 @@ class GstSpectrumDump(object):
             self.source = pipeline.format(fifo)
 
 
+    # From: https://github.com/Roadmaster/audio_test/blob/master/minimal_gstreamer_messages.py
+    def parse_spectrum_structure(self, text):
+        #First let's jsonize this
+        #This is the message name, which we don't need
+        text = text.replace("spectrum, ", "")
+        #name/value separator in json is : and not =
+        text = text.replace("=",": ")
+        #Mutate the {} array notation from the structure to
+        #[] notation for json.
+        # Updated to < >
+        text = text.replace("<","[")
+        text = text.replace(">","]")
+        #Remove a few stray semicolons that aren't needed
+        text = text.replace(";","")
+        #Remove the data type fields, as json doesn't need them
+        text = re.sub(r"\(.+?\)", "", text)
+        #double-quote the identifiers
+        text = re.sub(r"([\w-]+):", r'"\1":', text)
+        #Wrap the whole thing in brackets
+        text = ("{"+text+"}")
+        #Try to parse and return something sensible here, even if
+        #the data was unparsable.
+        try:
+            return json.loads(text)
+        except ValueError:
+            return None
+
+
     def round(self, n):
         if self.precision:
             return round(n, self.precision)
@@ -213,20 +243,23 @@ class GstSpectrumDump(object):
                     cutoff = int(round(self.bands * (7/8.0), 0))
                 else:
                     cutoff = None
-                mags = s.get_value('magnitude')
-                # print len(mags)
-                return True
-                # magnitudes = s.get_value('magnitude')[0][:cutoff]
-                # if not self.db:
-                #     if self.logamplify:
-                #         magnitudes = [self.dbtopct(db, i) for i, db
-                #                       in enumerate(magnitudes)]
-                #     else:
-                #         magnitudes = [self.dbtopct(db) for i, db
-                #                       in enumerate(magnitudes)]
-                # if not self.raw:
-                #     magnitudes = self.scale(magnitudes, self.bands)
-                # magnitudes = [self.round(m) for m in magnitudes]
+                # mags = s.get_value('magnitude')
+
+                # PyGI doesn't fully support spectrum yet: https://bugzilla.gnome.org/show_bug.cgi?id=693168
+
+                mags = self.parse_spectrum_structure(s.to_string())['magnitude']
+
+                magnitudes = mags[0][:cutoff]
+                if not self.db:
+                    if self.logamplify:
+                        magnitudes = [self.dbtopct(db, i) for i, db
+                                      in enumerate(magnitudes)]
+                    else:
+                        magnitudes = [self.dbtopct(db) for i, db
+                                      in enumerate(magnitudes)]
+                if not self.raw:
+                    magnitudes = self.scale(magnitudes, self.bands)
+                magnitudes = [self.round(m) for m in magnitudes]
             elif name == 'level' and s.has_field('peak') and s.has_field('decay'):
                 magnitudes = []
                 peaks = s.get_value('peak')

@@ -9,9 +9,9 @@ Created on 27.11.2014
 '''
 
 from threading import Thread
-from devkit import gui
+
 from devkit import hyperion
-from devkit import json_client
+
 import runpy
 import argparse
 import time
@@ -51,6 +51,7 @@ def main():
                   has_corner_leds)
 
     if args.json:
+        from devkit import json_client
         # Open the connection to the json server. Uncomment if you do not want to send data to the server.
         json_client.open_connection(hyperion_host, hyperion_port)
 
@@ -62,6 +63,7 @@ def main():
     effect_thread.start()
 
     if args.gui:
+        from devkit import gui
         gui.createWindow()
 
         # After the window was closed abort the effect through the fake hyperion module

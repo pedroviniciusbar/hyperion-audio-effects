@@ -79,6 +79,7 @@ class GstSpectrumDump(object):
                     controls how many channels to output here.  <threshold> is
                     ignored.
     <interval>      Milliseconds to wait between polls (default: 50).
+    <multichannel>  Spectrum from multiple channels? (default: False)
     <quiet>         Don't output to STDERR (default: False if no callback).
     <callback>      Return the magnitude list to this function (default: None).
     """
@@ -99,6 +100,7 @@ class GstSpectrumDump(object):
         self.vumeter = opts.get('vumeter', False)
         self.interval = opts.get('interval', 50)
         self.callback = opts.get('callback')
+        self.multichannel = opts.get('multichannel', False)
         self.quiet = opts.get('quiet', self.callback is not None)
         self.pipeline = None
         self.gainhits = 0
@@ -128,26 +130,28 @@ class GstSpectrumDump(object):
 
     # From: https://github.com/Roadmaster/audio_test/blob/master/minimal_gstreamer_messages.py
     def parse_spectrum_structure(self, text):
-        #First let's jsonize this
-        #This is the message name, which we don't need
+        # First let's jsonize this
+        # This is the message name, which we don't need
         text = text.replace("spectrum, ", "")
-        #name/value separator in json is : and not =
+        # name/value separator in json is : and not =
         text = text.replace("=",": ")
-        #Mutate the {} array notation from the structure to
-        #[] notation for json.
-        # Updated to < >
+        # Mutate the {} array notation from the structure to
+        # [] notation for json.
+        # Sometimes arrays are notated using < >
+        text = text.replace("{","[")
+        text = text.replace("}","]")
         text = text.replace("<","[")
         text = text.replace(">","]")
-        #Remove a few stray semicolons that aren't needed
+        # Remove a few stray semicolons that aren't needed
         text = text.replace(";","")
-        #Remove the data type fields, as json doesn't need them
+        # Remove the data type fields, as json doesn't need them
         text = re.sub(r"\(.+?\)", "", text)
-        #double-quote the identifiers
+        # double-quote the identifiers
         text = re.sub(r"([\w-]+):", r'"\1":', text)
-        #Wrap the whole thing in brackets
+        # Wrap the whole thing in brackets
         text = ("{"+text+"}")
-        #Try to parse and return something sensible here, even if
-        #the data was unparsable.
+        # Try to parse and return something sensible here, even if
+        # the data was unparsable.
         try:
             return json.loads(text)
         except ValueError:
@@ -249,7 +253,11 @@ class GstSpectrumDump(object):
 
                 mags = self.parse_spectrum_structure(s.to_string())['magnitude']
 
-                magnitudes = mags[0][:cutoff]
+                if self.multichannel:
+                    magnitudes = mags[0][:cutoff] # We use only the first channel for now
+                else:
+                    magnitudes = mags[:cutoff]
+
                 if not self.db:
                     if self.logamplify:
                         magnitudes = [self.dbtopct(db, i) for i, db
@@ -264,7 +272,6 @@ class GstSpectrumDump(object):
                 magnitudes = []
                 peaks = s.get_value('peak')
                 decays = s.get_value('decay')
-                # print len(peaks)
                 for channel in range(0, min(self.bands, len(peaks))):
                     peak = max(-self.threshold, min(0, peaks[channel]))
                     decay = max(-self.threshold, min(0, decays[channel]))
@@ -281,7 +288,7 @@ class GstSpectrumDump(object):
                 return True
             if not self.quiet:
                 try:
-                    print(' '.join((str(m) for m in magnitudes)))
+                    print(' | '.join(('%.3f' % m for m in magnitudes)))
                 except IOError:
                     self.loop.quit()
 
@@ -299,14 +306,16 @@ class GstSpectrumDump(object):
         if self.vumeter:
             pipeline.append('level message=true {}'.format(interval))
         else:
-            spectrum = 'spectrum {} bands={} threshold=-{} multi-channel=true'
+            spectrum = 'spectrum {} bands={} threshold=-{}'
             spectrum = spectrum.format(interval, self.bands, self.threshold)
+            if self.multichannel:
+                spectrum += ' multi-channel=true'
             pipeline.append(spectrum)
         pipeline.append('fakesink')
         self.pipeline = Gst.parse_launch(' ! '.join(pipeline))
         # self.pipeline = Gst.parse_launch('alsasrc ! level message=true in ! fakesink')
 
-        print ' ! '.join(pipeline)
+        print  'Using pipeline: ' + ' ! '.join(pipeline)
         # self.pipeline = Gst.Pipeline()
         # for element in pipeline:
         #     self.pipeline.add(element)

@@ -33,7 +33,11 @@ class Effect(object):
         self.pad_right = self.pad_left + 2*self.height + self.width - 4 # - 4 but why?
 
         # Minimum bar level
-        self.volume_min = 80
+        self.bar_min = 90
+
+        # Maximum bar level
+        self.bar_max = 100
+
 
         # Helper for color function
         self.height_float = float(self.height)
@@ -56,8 +60,8 @@ class Effect(object):
 
 
     def mag_to_idx(self, magnitude):
-        # Magnitude is 0-100, show the upper 20 only
-        return int(((magnitude-self.volume_min) / (100.0 - self.volume_min)) * self.height )
+        # Magnitude is 0-100, get index according to min and max
+        return int(((magnitude-self.bar_min) / (self.bar_max - self.bar_min)) * self.height )
 
 
     def update_led(self, i, color):
@@ -75,6 +79,11 @@ class Effect(object):
 
         # We get 4 magnitudes from gst (not sure about R/L order)
         # [0] Left, [1] left peak, [2] right, [3] right peak
+
+        # If vumeter=False, magnitudes hold the spectrum data,
+        # do something else with them...
+
+        # Length of magnitudes array equals number of bands
 
         left = self.mag_to_idx(self.magnitudes[0])
         left_peak = self.mag_to_idx(self.magnitudes[1])
@@ -103,7 +112,9 @@ class Effect(object):
 
 
 effect = Effect()
-spectrum = GstSpectrumDump(source='alsasrc', vumeter=True, quiet=True, callback=effect.receive_magnitudes)
+
+# You can play with the parameters here (quiet=False to print the magnitudes for example)
+spectrum = GstSpectrumDump(source='alsasrc', vumeter=True, quiet=True, bands=4, callback=effect.receive_magnitudes)
 spectrum.start()
 
 while not hyperion.abort():

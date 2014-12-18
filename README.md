@@ -1,13 +1,12 @@
 Hyperion audio effects
 ======================
 
-* New test video: https://www.youtube.com/watch?v=2Htkz8nhu-E
+* Video: https://www.youtube.com/watch?v=Hv3B8iVsPho
 
 Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdzwan/hyperion).
 
 - Based on https://github.com/Fabi1080/hyperion_effects_dev_kit
 - Also uses this neat wrapper (modified for Gstreamer 1.0) https://github.com/Wintervenom/gst-spectrumdump
-- Tested with leds using the json-connection: https://www.youtube.com/watch?v=sC_dO7YTh4o
 - Pull requests or improvement suggestions welcome
 - Not sure yet how to get the hyperion effects engine to import PyGI
 - Tested without pulseaudio (alsa only)

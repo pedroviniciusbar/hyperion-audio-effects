@@ -127,6 +127,12 @@ class GstSpectrumDump(object):
                        'depth=16, signed=true ! audioconvert'
             self.source = pipeline.format(fifo)
 
+        if self.bands > 40:
+            self.mags_cutoff = int(round(self.bands * (7/8.0), 0))
+        else:
+            self.mags_cutoff = None
+
+
 
     # From: https://github.com/Roadmaster/audio_test/blob/master/minimal_gstreamer_messages.py
     def parse_spectrum_structure(self, text):
@@ -156,6 +162,10 @@ class GstSpectrumDump(object):
             return json.loads(text)
         except ValueError:
             return None
+
+    def parse_magnitude(self, s):
+        # Faster way to parse magnitudes
+        return [float(x) for x in s[s.find('{')+1:-3].split(',')]
 
 
     def round(self, n):
@@ -231,7 +241,6 @@ class GstSpectrumDump(object):
 
 
     def on_message(self, bus, message):
-
         # We should return false if the pipeline has stopped
         if not self.running:
             return False
@@ -242,21 +251,21 @@ class GstSpectrumDump(object):
             if not s:
                 return
             name = s.get_name()
+
+
             if name == 'spectrum' and s.has_field('magnitude'):
-                if self.bands > 40:
-                    cutoff = int(round(self.bands * (7/8.0), 0))
-                else:
-                    cutoff = None
+
                 # mags = s.get_value('magnitude')
 
                 # PyGI doesn't fully support spectrum yet: https://bugzilla.gnome.org/show_bug.cgi?id=693168
 
-                mags = self.parse_spectrum_structure(s.to_string())['magnitude']
-
                 if self.multichannel:
+                    mags = self.parse_spectrum_structure(s.to_string())['magnitude']
                     magnitudes = mags[0][:cutoff] # We use only the first channel for now
                 else:
-                    magnitudes = mags[:cutoff]
+                    mags = self.parse_magnitude(s.to_string())
+                    magnitudes = mags[:self.mags_cutoff]
+
 
                 if not self.db:
                     if self.logamplify:

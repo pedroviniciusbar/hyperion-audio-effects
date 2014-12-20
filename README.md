@@ -20,15 +20,16 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 4. Put `options snd-aloop index=-2` in end of `/etc/modprobe.d/alsa-base.conf` to prevent loopback device for getting first card index
 5. Enable loopback device `modprobe snd-aloop`
 6. Put the included `.asoundrc` to your home folder (backup old) and change the soundcard index if needed (`"hw:<card>,<device>"`, check `aplay -l`)
-7. Run `python main.py` (`--gui` for gui, `--json` for network connection)
-8. Play some audio
-9. Levels should be drawn to gui, also sent to hyperion if json enabled
-10. Exit by closing the GUI or Ctrl+c
+7. Reboot or reload alsa `sudo alsa force-reload`
+8. Run `python main.py` (`--gui` for gui, `--json` for network connection)
+9. Play some audio
+10. Levels should be drawn to gui, also sent to hyperion if json enabled
+11. Exit by closing the GUI or Ctrl+c
 
 ### Installation and running on Windows *
 
 1. Install Python 2.7 (set python to PATH)
-2. Install needed components from PyGI AIO: http://sourceforge.net/projects/pygobjectwin32/files/
+2. Install needed components from PyGI AIO: http://sourceforge.net/projects/pygobjectwin32/files/ (run the installer and select as follows)
    - Do you have portable? No
    - Choose destination: 2.7
    - Choose packages: Base packages, Gst-plugins, Gst-plugins-extra, Gstreamer

@@ -51,7 +51,7 @@ class Effect(object):
         self.processing = False
 
         # Minimum magnitude level
-        self.mag_min = 50.0
+        self.mag_min = 60.0
 
         # Maximum magnitude level
         self.mag_max = 70.0
@@ -68,23 +68,14 @@ class Effect(object):
 
 
     def normalize_mag(self, magnitude):
-        # Normalize magnitude to 0.0-1.0
+        # Normalize magnitude to 0-255
 
         if magnitude < self.mag_min:
-            return 0.0
+            return 0
         if magnitude > self.mag_max:
-            return 1.0
+            return 255
 
-        return (magnitude-self.mag_min) / (self.mag_max - self.mag_min)
-
-
-    # def update_led(self, i, color):
-    #     self.ledsData[3*i:3*i+3] = color
-
-
-    # def get_led_color(self, i):
-    #     # Gradient from green to red
-    #     return (int(255*(i/self.height_float)), int(255*((self.height_float-i)/self.height_float)), 0)
+        return int(((magnitude-self.mag_min) / (self.mag_max - self.mag_min)) * 255)
 
 
     def update_leds(self):
@@ -95,10 +86,12 @@ class Effect(object):
 
         # print bass
 
-        self.ledsDataTemp = map(lambda x: int(x * bass), self.ledsData)
+        # Copy all values
+        self.ledsDataTemp[:] = self.ledsData[:]
 
-        # print self.ledsData
-        # print self.ledsDataTemp
+        # Scale them
+        for i in range(0, hyperion.ledCount*3):
+            self.ledsDataTemp[i] = (self.ledsDataTemp[i] * bass) >> 8
 
         self.processing = False
 
@@ -107,7 +100,7 @@ class Effect(object):
 effect = Effect()
 
 # You can play with the parameters here (quiet=False to print the magnitudes for example)
-spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=False, quiet=True, bands=4, callback=effect.receive_magnitudes)
+spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=False, quiet=True, bands=45, callback=effect.receive_magnitudes)
 spectrum.start()
 
 while not hyperion.abort():

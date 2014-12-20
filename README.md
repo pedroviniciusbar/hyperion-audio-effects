@@ -29,7 +29,7 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 ### Installation and running on Windows *
 
 1. Install Python 2.7 (set python to PATH)
-2. Install needed components from PyGI AIO: http://sourceforge.net/projects/pygobjectwin32/files/ (run the installer and select as follows)
+2. Install needed components from PyGI AIO: http://sourceforge.net/projects/pygobjectwin32/files/
    - Do you have portable? No
    - Choose destination: 2.7
    - Choose packages: Base packages, Gst-plugins, Gst-plugins-extra, Gstreamer

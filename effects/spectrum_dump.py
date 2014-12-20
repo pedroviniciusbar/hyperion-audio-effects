@@ -315,7 +315,7 @@ class GstSpectrumDump(object):
         self.pipeline = Gst.parse_launch(' ! '.join(pipeline))
         # self.pipeline = Gst.parse_launch('alsasrc ! level message=true in ! fakesink')
 
-        print  'Using pipeline: ' + ' ! '.join(pipeline)
+        stdout('Using pipeline: ' + ' ! '.join(pipeline))
         # self.pipeline = Gst.Pipeline()
         # for element in pipeline:
         #     self.pipeline.add(element)
@@ -345,7 +345,7 @@ class GstSpectrumDump(object):
 
     def start(self):
 
-        stdout(Gst.version())
+        # stdout(Gst.version())
 
         self.start_pipeline()
         self.loop = GLib.MainLoop()

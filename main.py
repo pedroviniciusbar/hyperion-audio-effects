@@ -32,7 +32,7 @@ has_corner_leds = True
 parser = argparse.ArgumentParser()
 parser.add_argument("--gui", help="enable GUI", action="store_true")
 parser.add_argument("--json", help="enable JSON client", action="store_true")
-parser.add_argument("--effect", help="select effect", default="effect")
+parser.add_argument("--effect", help="select effect", default="vumeter")
 
 
 def run_effect(effect='effect'):
@@ -54,8 +54,6 @@ def main():
         from devkit import json_client
         # Open the connection to the json server. Uncomment if you do not want to send data to the server.
         json_client.open_connection(hyperion_host, hyperion_port)
-
-    print args.effect
 
     # create own thread for the effect
     effect_thread = Thread(target=run_effect, kwargs={'effect': args.effect})

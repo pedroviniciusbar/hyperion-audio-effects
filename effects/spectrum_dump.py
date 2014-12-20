@@ -165,7 +165,7 @@ class GstSpectrumDump(object):
 
     def parse_magnitude(self, s):
         # Faster way to parse magnitudes
-        return [float(x) for x in s[s.find('{')+1:-3].split(',')]
+        return map(float, s[s.find('{')+1:-3].split(','))
 
 
     def round(self, n):

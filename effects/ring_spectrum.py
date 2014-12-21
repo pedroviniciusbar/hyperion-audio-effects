@@ -104,7 +104,7 @@ class Effect(object):
         # Scale them
         for i in range(0, self.bands):
 
-            self.mag_min = ((self.bands - i) / self.bands) * 60.0
+            self.mag_min = ((self.bands - i) / float(self.bands)) * 40.0
 
             self.current_mag = self.normalize_mag(self.magnitudes[i])
 

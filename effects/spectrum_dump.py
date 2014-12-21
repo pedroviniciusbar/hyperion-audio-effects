@@ -127,10 +127,12 @@ class GstSpectrumDump(object):
                        'depth=16, signed=true ! audioconvert'
             self.source = pipeline.format(fifo)
 
-        if self.bands > 40:
-            self.mags_cutoff = int(round(self.bands * (7/8.0), 0))
+        # TODO: Read bands cutoff from options
+        if self.bands > 78:
+            self.bands_cutoff = 78
+            # self.bands_cutoff = int(round(self.bands * (7/8.0), 0))
         else:
-            self.mags_cutoff = None
+            self.bands_cutoff = None
 
 
 
@@ -261,10 +263,10 @@ class GstSpectrumDump(object):
 
                 if self.multichannel:
                     mags = self.parse_spectrum_structure(s.to_string())['magnitude']
-                    magnitudes = mags[0][:cutoff] # We use only the first channel for now
+                    magnitudes = mags[0][:self.bands_cutoff] # We use only the first channel for now
                 else:
                     mags = self.parse_magnitude(s.to_string())
-                    magnitudes = mags[:self.mags_cutoff]
+                    magnitudes = mags[:self.bands_cutoff]
 
 
                 if not self.db:

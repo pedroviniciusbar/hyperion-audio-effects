@@ -58,10 +58,10 @@ class Effect(object):
         self.processing = False
 
         # Minimum magnitude level
-        self.mag_min = 0.0
+        self.mag_min = 30.0
 
         # Maximum magnitude level
-        self.mag_max = 70.0
+        self.mag_max = 60.0
 
         self.bands = hyperion.ledCount / 2
 
@@ -103,6 +103,8 @@ class Effect(object):
 
         # Scale them
         for i in range(0, self.bands):
+
+            self.mag_min = ((self.bands - i) / self.bands) * 60.0
 
             self.current_mag = self.normalize_mag(self.magnitudes[i])
 

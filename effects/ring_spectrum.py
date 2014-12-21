@@ -22,7 +22,7 @@ class Effect(object):
         # brightness = float(hyperion.args.get('brightness', 1.0))
         # saturation = float(hyperion.args.get('saturation', 1.0))
         # reverse = bool(hyperion.args.get('reverse', False))
-        rotationTime = 3.0
+        rotationTime = 1.0
         brightness = 1.0
         saturation = 1.0
         reverse = False
@@ -34,8 +34,13 @@ class Effect(object):
 
         # Initialize the led data
         self.ledsData = bytearray()
-        for i in range(hyperion.ledCount):
-            hue = float(i)/hyperion.ledCount
+        for i in range(hyperion.ledCount/2):
+            hue = float(i)/(hyperion.ledCount/2+30)
+            rgb = colorsys.hsv_to_rgb(hue, saturation, brightness)
+            self.ledsData += bytearray((int(255*rgb[0]), int(255*rgb[1]), int(255*rgb[2])))
+
+        for i in range(hyperion.ledCount/2, 0, -1):
+            hue = float(i)/(hyperion.ledCount/2+30)
             rgb = colorsys.hsv_to_rgb(hue, saturation, brightness)
             self.ledsData += bytearray((int(255*rgb[0]), int(255*rgb[1]), int(255*rgb[2])))
 
@@ -120,8 +125,8 @@ spectrum.start()
 while not hyperion.abort():
 
     hyperion.setColor(effect.ledsDataTemp)
-    effect.ledsData = effect.ledsData[-effect.increment:] + effect.ledsData[:-effect.increment]
-    time.sleep(0.05)
+    # effect.ledsData = effect.ledsData[-effect.increment:] + effect.ledsData[:-effect.increment]
+    time.sleep(0.01)
 
 
 spectrum.stop()

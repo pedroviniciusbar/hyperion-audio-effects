@@ -19,14 +19,14 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 3. Set hyperion settings in main.py
 4. Put `options snd-aloop index=-2` in end of `/etc/modprobe.d/alsa-base.conf` to prevent loopback device for getting first card index
 5. Enable loopback device `modprobe snd-aloop`
-6. Put the included `.asoundrc` to your home folder (backup old) and change the soundcard index if needed (`"hw:<card>,<device>"`, check `aplay -l`)
+6. Put the included `.asoundrc` to your home folder (backup old) and change the soundcard index if needed (`"hw:<card>,<device>"`, check `aplay -l`) *
 7. Reboot or reload alsa `sudo alsa force-reload`
 8. Run `python main.py` (`--gui` for gui, `--json` for network connection)
 9. Play some audio
 10. Levels should be drawn to gui, also sent to hyperion if json enabled
 11. Exit by closing the GUI or Ctrl+c
 
-### Installation and running on Windows *
+### Installation and running on Windows **
 
 1. Install Python 2.7 (set python to PATH)
 2. Install needed components from PyGI AIO: http://sourceforge.net/projects/pygobjectwin32/files/
@@ -42,4 +42,5 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 6. Levels should be drawn to gui, also sent to hyperion if json enabled
 7. Exit by closing the GUI or Ctrl+c
 
-\* Trying to figure out what is the bottleneck on Windows, doesn't run very smoothly
+\* Check this if you have pulseaudio https://github.com/RanzQ/hyperion-audio-effects/issues/4#issuecomment-67764593
+\** Trying to figure out what is the bottleneck on Windows, doesn't run very smoothly

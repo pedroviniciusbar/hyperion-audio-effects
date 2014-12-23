@@ -42,5 +42,5 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 6. Levels should be drawn to gui, also sent to hyperion if json enabled
 7. Exit by closing the GUI or Ctrl+c
 
-\* Check this if you have pulseaudio https://github.com/RanzQ/hyperion-audio-effects/issues/4#issuecomment-67764593
+\* Check this if you have pulseaudio: [#4](https://github.com/RanzQ/hyperion-audio-effects/issues/4#issuecomment-67764593)
 \** Trying to figure out what is the bottleneck on Windows, doesn't run very smoothly

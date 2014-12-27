@@ -10,7 +10,7 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 - Pull requests or improvement suggestions welcome
 - Not sure yet how to get the hyperion effects engine to import PyGI
 - Tested without pulseaudio (alsa only)
-- You can put your own effects to `effects/` (copy `effect.py`) and then it can be passed as `--effect <filename>`
+- You can put your own effects to `effects/` (copy e.g. `vumeter.py`) and then it can be passed as `--effect <filename>`
 
 ### Installation and running on Debian
 

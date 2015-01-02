@@ -8,8 +8,7 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 - Based on https://github.com/Fabi1080/hyperion_effects_dev_kit
 - Also uses this neat wrapper (modified for Gstreamer 1.0) https://github.com/Wintervenom/gst-spectrumdump
 - Pull requests or improvement suggestions welcome
-- Not sure yet how to get the hyperion effects engine to import PyGI
-- Tested without pulseaudio (alsa only)
+- Not sure if it's possible get the hyperion effects engine to import PyGI, so for now these effects must be run separately using the json connection
 
 ### Installation and running on Debian
 

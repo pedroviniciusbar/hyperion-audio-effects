@@ -93,4 +93,5 @@ def close_connection():
 
 def send_led_data(led_data):
     global client
-    client.send_led_data(led_data)
+    if client != None:
+        client.send_led_data(led_data)

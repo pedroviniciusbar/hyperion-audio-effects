@@ -7,12 +7,18 @@ import time
 import colorsys
 import math
 
+# pip install colour
+from colour import Color
+
 from effects.spectrum_dump import GstSpectrumDump
 
 
 BLACK = (0, 0, 0)
 
+
+
 class Effect(object):
+
 
     def __init__(self):
 
@@ -30,15 +36,26 @@ class Effect(object):
 
         # Initialize the led data
         self.ledsData = bytearray()
+
+        color_steps = hyperion.ledCount/2
+
+        red = Color("red")
+        blue = Color("blue")
+
+        colors = list(red.range_to(blue, color_steps/2)) + list(blue.range_to(red, color_steps/2))
+
+        print len(colors)
+        print colors
+
+
         for i in range(hyperion.ledCount/2):
-            hue = float(i)/(hyperion.ledCount/2+30)
-            rgb = colorsys.hsv_to_rgb(hue, saturation, brightness)
-            self.ledsData += bytearray((int(255*rgb[0]), int(255*rgb[1]), int(255*rgb[2])))
+            c = colors[i]
+            self.ledsData += bytearray((int(255*c.red), int(255*c.green), int(255*c.blue)))
 
         for i in range(hyperion.ledCount/2, 0, -1):
-            hue = float(i)/(hyperion.ledCount/2+30)
-            rgb = colorsys.hsv_to_rgb(hue, saturation, brightness)
-            self.ledsData += bytearray((int(255*rgb[0]), int(255*rgb[1]), int(255*rgb[2])))
+            c = colors[i-1]
+            self.ledsData += bytearray((int(255*c.red), int(255*c.green), int(255*c.blue)))
+
 
         # Temp buffer
         self.ledsDataTemp = bytearray(self.ledsData)
@@ -46,6 +63,11 @@ class Effect(object):
         self.processing = False
 
         self.bands = hyperion.ledCount / 2
+
+        self.mag_min_orig = self.mag_min
+
+        self.half = (hyperion.ledCount/2) * 3
+        self.increment = 3
 
 
     def receive_magnitudes(self, magnitudes):
@@ -81,12 +103,16 @@ class Effect(object):
         # Copy all values
         self.ledsDataTemp[:] = self.ledsData[:]
 
+        # self.processing = False
+        # return
+
         self.current_mag = 0.0
 
         # Scale them
         for i in range(0, self.bands):
 
-            self.mag_min = ((self.bands - i) / float(self.bands)) * 40.0
+            # Lower minimum for upper bands
+            self.mag_min = ((self.bands - i) / float(self.bands)) * self.mag_min_orig/2 + self.mag_min_orig/2
 
             self.current_mag = self.normalize_mag(self.magnitudes[i])
 
@@ -108,7 +134,15 @@ spectrum.start()
 
 while not hyperion.abort():
     hyperion.setColor(effect.ledsDataTemp)
-    time.sleep(0.01)
+
+    # Loop colors for both sides
+    ld = effect.ledsData
+    h = effect.half
+    i = effect.increment
+    ld[:h] = ld[h-i:h] + ld[:h-i]
+    ld[h:] = ld[h+i:] + ld[h:h+i]
+
+    time.sleep(0.05)
 
 
 spectrum.stop()

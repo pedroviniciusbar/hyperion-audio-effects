@@ -23,6 +23,8 @@ class Effect(object):
         self.height = int(hyperion.args.get('height', 30))
         self.corners = bool(hyperion.args.get('corners', True))
         self.bottom_padding = int(hyperion.args.get('bottom-padding', 4))
+        self.level_min = int(hyperion.args.get('level-min', 90))
+        self.level_max = int(hyperion.args.get('level-max', 100))
 
         if self.corners:
             self.height += 2
@@ -30,13 +32,6 @@ class Effect(object):
         # Helpers for updating the led array
         self.pad_left = (self.width - self.bottom_padding) / 2 + 1 # + 1 but why?
         self.pad_right = self.pad_left + 2*self.height + self.width - 4 # - 4 but why?
-
-        # Minimum bar level
-        self.bar_min = 90
-
-        # Maximum bar level
-        self.bar_max = 100
-
 
         # Helper for color function
         self.height_float = float(self.height)
@@ -60,7 +55,7 @@ class Effect(object):
 
     def mag_to_idx(self, magnitude):
         # Magnitude is 0-100, get index according to min and max
-        return int(((magnitude-self.bar_min) / (self.bar_max - self.bar_min)) * self.height )
+        return int(((magnitude-self.level_min) / (self.level_max - self.level_min)) * self.height )
 
 
     def update_led(self, i, color):

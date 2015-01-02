@@ -6,6 +6,8 @@
         "width" : 48,
         "height" : 30,
         "corners" : true,
-        "bottom-padding": 4
+        "bottom-padding": 4,
+        "level-min": 90,
+        "level-max": 100
     }
 }

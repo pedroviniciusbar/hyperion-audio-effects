@@ -10,7 +10,6 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 - Pull requests or improvement suggestions welcome
 - Not sure yet how to get the hyperion effects engine to import PyGI
 - Tested without pulseaudio (alsa only)
-- You can put your own effects to `effects/` (copy e.g. `vumeter.py`) and then it can be passed as `--effect <filename>`
 
 ### Installation and running on Debian
 
@@ -41,6 +40,15 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 5. Play some audio
 6. Levels should be drawn to gui, also sent to hyperion if json enabled
 7. Exit by closing the GUI or Ctrl+c
+
+### Effects development
+1. Copy one of the script & config pairs in `effects/` (e.g. `myeffect.py` and `myeffect.json`) and then it can be passed as `--effect=myeffect` (json values can be read from hyperion.args like in normal hyperion effects)
+2. Adjust gstreamer parameters
+   - See `spectrum_dump.py` for explanation of parameters for GstSpectrumDump
+   - Using `vumeter` and `bands` you can adjust the type of received magnitudes (`self.magnitudes`)
+      * With `vumeter=True` you get 4 magnitudes which correspond to peaks and decays for the L/R channels
+      * With `vumeter=False` you get spectrum magnitudes for the amount of bands (defaults to 128)
+3. Update the leds with by modifying the bytearray `self.ledsData` according to values in `self.magnitudes` (I've done it in method `update_leds()`)
 
 \* Check this if you have pulseaudio: [#4](https://github.com/RanzQ/hyperion-audio-effects/issues/4#issuecomment-67764593)
 

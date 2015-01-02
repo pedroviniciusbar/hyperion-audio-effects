@@ -15,6 +15,7 @@ from devkit import hyperion
 import runpy
 import argparse
 import time
+import json
 
 
 # Change this to your Pis / Hyperion data. There is no harm done if wrong data is set here.
@@ -54,6 +55,11 @@ def main():
         from devkit import json_client
         # Open the connection to the json server. Uncomment if you do not want to send data to the server.
         json_client.open_connection(hyperion_host, hyperion_port)
+
+    with open('effects/' + args.effect + '.json') as effect_json:
+        effect = json.load(effect_json)
+        hyperion.set_args(effect.get('args', {}))
+
 
     # create own thread for the effect
     effect_thread = Thread(target=run_effect, kwargs={'effect': args.effect})

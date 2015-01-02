@@ -18,17 +18,13 @@ class Effect(object):
 
 
         # Get the parameters
-        # rotationTime = float(hyperion.args.get('rotation-time', 3.0))
-        # brightness = float(hyperion.args.get('brightness', 1.0))
-        # saturation = float(hyperion.args.get('saturation', 1.0))
-        # reverse = bool(hyperion.args.get('reverse', False))
-        rotationTime = 1.0
-        brightness = 1.0
-        saturation = 1.0
-        reverse = False
+        brightness = float(hyperion.args.get('brightness', 1.0))
+        saturation = float(hyperion.args.get('saturation', 1.0))
+        self.mag_min = float(hyperion.args.get('magnitude-min', 30.0))
+        self.mag_max = float(hyperion.args.get('magnitude-max', 60.0))
+
 
         # Check parameters
-        rotationTime = max(0.1, rotationTime)
         brightness = max(0.0, min(brightness, 1.0))
         saturation = max(0.0, min(saturation, 1.0))
 
@@ -47,21 +43,7 @@ class Effect(object):
         # Temp buffer
         self.ledsDataTemp = bytearray(self.ledsData)
 
-        # Calculate the sleep time and rotation increment
-        self.increment = 3
-        self.sleepTime = rotationTime / hyperion.ledCount
-
-        if reverse:
-            self.increment = -self.increment
-
-
         self.processing = False
-
-        # Minimum magnitude level
-        self.mag_min = 30.0
-
-        # Maximum magnitude level
-        self.mag_max = 60.0
 
         self.bands = hyperion.ledCount / 2
 
@@ -125,9 +107,7 @@ spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=False, quiet=True, ban
 spectrum.start()
 
 while not hyperion.abort():
-
     hyperion.setColor(effect.ledsDataTemp)
-    # effect.ledsData = effect.ledsData[-effect.increment:] + effect.ledsData[:-effect.increment]
     time.sleep(0.01)
 
 

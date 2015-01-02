@@ -17,14 +17,10 @@ class Effect(object):
 
 
         # Get the parameters
-        # rotationTime = float(hyperion.args.get('rotation-time', 3.0))
-        # brightness = float(hyperion.args.get('brightness', 1.0))
-        # saturation = float(hyperion.args.get('saturation', 1.0))
-        # reverse = bool(hyperion.args.get('reverse', False))
-        rotationTime = 3.0
-        brightness = 1.0
-        saturation = 1.0
-        reverse = False
+        rotationTime = float(hyperion.args.get('rotation-time', 3.0))
+        brightness = float(hyperion.args.get('brightness', 1.0))
+        saturation = float(hyperion.args.get('saturation', 1.0))
+        reverse = bool(hyperion.args.get('reverse', False))
 
         # Check parameters
         rotationTime = max(0.1, rotationTime)
@@ -109,7 +105,7 @@ while not hyperion.abort():
 
     hyperion.setColor(effect.ledsDataTemp)
     effect.ledsData = effect.ledsData[-effect.increment:] + effect.ledsData[:-effect.increment]
-    time.sleep(0.05)
+    time.sleep(effect.sleepTime)
 
 
 spectrum.stop()

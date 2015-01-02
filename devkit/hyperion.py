@@ -61,6 +61,10 @@ def get_led_data():
 
     return led_data_copy
 
+def set_args(_args):
+    global args
+    args = _args
+
 
 """ fake hyperion functions """
 
@@ -69,7 +73,7 @@ def abort():
     return _abort
 
 
-def set_color(led_data):
+def set_color_led_data(led_data):
     global _ledData
     imp.acquire_lock()
     _ledData = bytearray(led_data)
@@ -77,16 +81,21 @@ def set_color(led_data):
     json_client.send_led_data(led_data)
 
 
-def setColor(led_data):
-    set_color(led_data)
-
-""" cant overload functions in python """
-# def setColor(red, green, blue):
-#     acquire_lock()
-#     for i in range(len(_ledData) / 3):
-#         _ledData[3*i] = red
-#         _ledData[3*i + 1] = green
-#         _ledData[3*i + 2] = blue
-#     release_lock()
+def set_color_rgb(red, green, blue):
+    global _ledData
+    imp.acquire_lock()
+    for i in range(len(_ledData) / 3):
+        _ledData[3*i] = red
+        _ledData[3*i + 1] = green
+        _ledData[3*i + 2] = blue
+    imp.release_lock()
+    json_client.send_led_data(_ledData)
 
 
+def setColor(*args):
+    if len(args) == 1:
+        set_color_led_data(args[0])
+    elif len(args) == 3:
+        set_color_rgb(args[0], args[1], args[2])
+    else:
+        raise TypeError('setColor takes 1 or 3 arguments')

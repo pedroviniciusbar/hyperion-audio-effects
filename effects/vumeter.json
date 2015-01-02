@@ -1,0 +1,11 @@
+{
+    "name" : "VU Meter",
+    "script" : "vumeter.py",
+    "args" :
+    {
+        "width" : 48,
+        "height" : 30,
+        "corners" : true,
+        "bottom-padding": 4
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "name" : "Bass Rainbow",
+    "script" : "bass_rainbow.py",
+    "args" :
+    {
+        "rotation-time" : 3.0,
+        "brightness" : 1.0,
+        "saturation": 1.0,
+        "reverse" : false
+    }
+}

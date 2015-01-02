@@ -15,15 +15,14 @@ class Effect(object):
         self.processing = False
         self.ledsData = bytearray(hyperion.ledCount * (0, 0, 0))
 
-        # TODO: Read options from json
-
         # Adjust these according to hyperion config
         # For now hardcoded for setups which start from bottom
-        # since dev kit doesn't support the setImage()
-        self.width = 48
-        self.height = 30
-        self.corners = True
-        self.bottom_padding = 4
+        # since the dev kit doesn't support the setImage()
+
+        self.width = int(hyperion.args.get('width', 48))
+        self.height = int(hyperion.args.get('height', 30))
+        self.corners = bool(hyperion.args.get('corners', True))
+        self.bottom_padding = int(hyperion.args.get('bottom-padding', 4))
 
         if self.corners:
             self.height += 2
@@ -118,8 +117,8 @@ spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=True, quiet=True, band
 spectrum.start()
 
 while not hyperion.abort():
-    # spectrum.iterate()
     hyperion.setColor(effect.ledsData)
     time.sleep(0.05)
 
+# This must be called to stop the gstreamer
 spectrum.stop()

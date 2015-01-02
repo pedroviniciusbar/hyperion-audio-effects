@@ -47,8 +47,8 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
    - See `spectrum_dump.py` for explanation of parameters for GstSpectrumDump
    - Using `vumeter` and `bands` you can adjust the type of received magnitudes (`self.magnitudes`)
       * With `vumeter=True` you get 4 magnitudes which correspond to peaks and decays for the L/R channels
-      * With `vumeter=False` you get spectrum magnitudes for the amount of bands (defaults to 128)
-3. Update the leds with by modifying the bytearray `self.ledsData` according to values in `self.magnitudes` (I've done it in method `update_leds()`)
+      * With `vumeter=False` you get spectrum magnitudes for the amount of `bands` (defaults to 128)
+3. Update the leds by modifying the bytearray `self.ledsData` according to values in `self.magnitudes` (I've done it in method `update_leds()`)
 
 \* Check this if you have pulseaudio: [#4](https://github.com/RanzQ/hyperion-audio-effects/issues/4#issuecomment-67764593)
 

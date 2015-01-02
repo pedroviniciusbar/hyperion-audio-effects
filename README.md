@@ -42,7 +42,7 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 7. Exit by closing the GUI or Ctrl+c
 
 ### Effects development
-1. Copy one of the script & config pairs in `effects/` (e.g. `myeffect.py` and `myeffect.json`) and then it can be passed as `--effect=myeffect` (json values can be read from hyperion.args like in normal hyperion effects)
+1. Copy one of the script & config pairs in `effects/` (e.g. `myeffect.py` and `myeffect.json`) and then it can be passed as `--effect=myeffect` (json values can be read from `hyperion.args` like in normal hyperion effects)
 2. Adjust gstreamer parameters
    - See `spectrum_dump.py` for explanation of parameters for GstSpectrumDump
    - Using `vumeter` and `bands` you can adjust the type of received magnitudes (`self.magnitudes`)

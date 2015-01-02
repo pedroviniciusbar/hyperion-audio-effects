@@ -5,7 +5,7 @@
     {
         "brightness" : 1.0,
         "reverse" : false,
-        "magnitude-min": 10.0,
-        "magnitude-max": 60.0
+        "magnitude-min": 40.0,
+        "magnitude-max": 80.0
     }
 }

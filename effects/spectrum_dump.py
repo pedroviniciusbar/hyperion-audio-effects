@@ -72,7 +72,7 @@ class GstSpectrumDump(object):
     <raw>           Don't clip or apply logarithmic upscale the output.
                     (default: True).
     <db>            Return output in decibels instead of a percentage.
-                    <logamplify> is ignored (default: True).
+                    <logamplify> is ignored (default: False).
     <iec>           Convert decibels to percentages with IEC 60268-18 scaling
                     (default: False).
     <vumeter>       Return VU meter output instead of spectrum.  <bands>

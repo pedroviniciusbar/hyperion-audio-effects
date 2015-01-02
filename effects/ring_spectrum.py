@@ -7,9 +7,6 @@ import time
 import colorsys
 import math
 
-# pip install colour
-from colour import Color
-
 from effects.spectrum_dump import GstSpectrumDump
 
 
@@ -39,22 +36,23 @@ class Effect(object):
 
         color_steps = hyperion.ledCount/2
 
-        red = Color("red")
-        blue = Color("blue")
+        colors = []
 
-        colors = list(red.range_to(blue, color_steps/2)) + list(blue.range_to(red, color_steps/2))
+        for i in range(color_steps):
+            hue = float(i)/color_steps
+            colors.append(colorsys.hsv_to_rgb(hue, saturation, brightness))
 
-        print len(colors)
-        print colors
+        for i in range(color_steps):
+            hue = float(color_steps-i)/color_steps
+            colors.append(colorsys.hsv_to_rgb(hue, saturation, brightness))
 
-
-        for i in range(hyperion.ledCount/2):
+        for i in range(color_steps):
             c = colors[i]
-            self.ledsData += bytearray((int(255*c.red), int(255*c.green), int(255*c.blue)))
+            self.ledsData += bytearray((int(255*c[0]), int(255*c[1]), int(255*c[2])))
 
-        for i in range(hyperion.ledCount/2, 0, -1):
+        for i in range(color_steps, 0, -1):
             c = colors[i-1]
-            self.ledsData += bytearray((int(255*c.red), int(255*c.green), int(255*c.blue)))
+            self.ledsData += bytearray((int(255*c[0]), int(255*c[1]), int(255*c[2])))
 
 
         # Temp buffer

@@ -81,13 +81,16 @@ class JsonClient(object):
 
 
 def open_connection(host, port, timeout=10):
+    global client
     client = JsonClient(host, port, timeout)
     client.connect()
 
 
 def close_connection():
+    global client
     client.disconnect()
 
 def send_led_data(led_data):
+    global client
     if client != None:
         client.send_led_data(led_data)

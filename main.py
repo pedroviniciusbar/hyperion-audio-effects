@@ -22,7 +22,7 @@ import json
 
 # Change this to your Pis / Hyperion data. There is no harm done if wrong data is set here.
 # The connection will simply time out.
-hyperion_host = '192.168.0.15'
+hyperion_host = '192.168.0.7'
 hyperion_port = 19444
 
 # Change this according to your led configuration.
@@ -43,7 +43,10 @@ def run_effect(effect='effect'):
     Runs the module effect. Copy any hyperion effect code in this module or create your own.
     Note that effects that call hyperion.setColor(r, g, b) or hyperion.setImage(img) are not supported.
     """
-    runpy.run_module("effects." + effect)
+
+    # runpy.run_module("effects." + effect)
+
+    cProfile.run('runpy.run_module("effects.vumeter")', 'hypstats')
 
 
 def main():
@@ -77,7 +80,7 @@ def main():
     else:
         try:
             while True:
-                time.sleep(1)
+                time.sleep(0.0001)
         except KeyboardInterrupt:
             hyperion.set_abort(True)
 
@@ -91,7 +94,11 @@ def main():
 
 
 if __name__ == '__main__':
-    cProfile.run('main()', 'hypstats')
+    # cProfile.run('main()', 'hypstats')
+    # p = pstats.Stats('hypstats')
+    # p.sort_stats('time').print_stats(10)
+    main()
+
     p = pstats.Stats('hypstats')
     p.sort_stats('time').print_stats(10)
 

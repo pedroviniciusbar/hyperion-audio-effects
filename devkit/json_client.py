@@ -1,7 +1,7 @@
 """
 This module is used to send the led data to hyperion's json server
 
-Created on 27.11.2014, last updated on 02.02.2015
+Created on 27.11.2014, last updated on 17.1.2015
 
 @author: Fabian Hertwig
 @author: Juha Rantanen
@@ -81,17 +81,13 @@ class JsonClient(object):
 
 
 def open_connection(host, port, timeout=10):
-    global client
     client = JsonClient(host, port, timeout)
     client.connect()
 
 
 def close_connection():
-    global client
     client.disconnect()
 
-
 def send_led_data(led_data):
-    global client
     if client != None:
         client.send_led_data(led_data)

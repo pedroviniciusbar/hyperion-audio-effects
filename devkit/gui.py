@@ -39,6 +39,8 @@ def createWindow():
     if not hyperion.corner_leds:
         x_pos += x_increase
 
+    print 'gui leds: ' + str(hyperion.ledCount)
+
     for i in range(hyperion.ledCount):
         rect = canvas.create_rectangle(x_pos, y_pos, x_pos + _led_width, y_pos + _led_height, fill="black",
                                        outline="white")

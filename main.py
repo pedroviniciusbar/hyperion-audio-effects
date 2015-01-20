@@ -8,6 +8,8 @@ Created on 27.11.2014
 @author: Fabian Hertwig
 '''
 
+import cProfile, pstats
+
 from threading import Thread
 
 from devkit import hyperion
@@ -89,5 +91,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    cProfile.run('main()', 'hypstats')
+    p = pstats.Stats('hypstats')
+    p.sort_stats('time').print_stats(10)
 

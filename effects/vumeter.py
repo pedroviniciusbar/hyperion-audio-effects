@@ -40,6 +40,8 @@ class Effect(object):
         for i in range(0, self.height):
             self.color_map.append(self.get_led_color(i))
 
+        print 'effect leds: ' + str(hyperion.ledCount)
+
 
 
 

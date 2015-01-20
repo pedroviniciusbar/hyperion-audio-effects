@@ -2,8 +2,10 @@
 This module is used to fake the original hyperion functions
 
 Created on 27.11.2014
+Modified on 17.1.2015
 
 @author: Fabian Hertwig
+@author: Juha Rantanen
 """
 import imp
 import json_client
@@ -23,6 +25,7 @@ _ledData = None
 _abort = False
 
 """ helper functions """
+
 
 def init(horizontal_led_num, vertical_led_num, first_led_offset_num, leds_in_clockwise_direction, has_corner_leds):
     """

@@ -22,6 +22,8 @@ from gi.repository import GObject, Gst, GLib
 
 import math
 
+import time
+
 GObject.threads_init()
 Gst.init(None)
 
@@ -134,6 +136,9 @@ class GstSpectrumDump(object):
         else:
             self.bands_cutoff = None
 
+        self.last_message_time = time.clock()
+        self.message_time = None
+
 
 
     # From: https://github.com/Roadmaster/audio_test/blob/master/minimal_gstreamer_messages.py
@@ -243,6 +248,13 @@ class GstSpectrumDump(object):
 
 
     def on_message(self, bus, message):
+
+        # Time between messages:
+        self.message_time = time.clock()
+        print self.message_time - self.last_message_time
+        self.last_message_time = self.message_time
+
+
         # We should return false if the pipeline has stopped
         if not self.running:
             return False

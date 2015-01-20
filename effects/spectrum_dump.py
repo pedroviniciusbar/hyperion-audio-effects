@@ -136,7 +136,7 @@ class GstSpectrumDump(object):
         else:
             self.bands_cutoff = None
 
-        self.last_message_time = time.clock()
+        self.last_message_time = time.time()
         self.message_time = None
 
 
@@ -250,7 +250,7 @@ class GstSpectrumDump(object):
     def on_message(self, bus, message):
 
         # Time between messages:
-        self.message_time = time.clock()
+        self.message_time = time.time()
         print self.message_time - self.last_message_time
         self.last_message_time = self.message_time
 

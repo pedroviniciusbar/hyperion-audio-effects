@@ -3,10 +3,10 @@
     "script" : "vumeter.py",
     "args" :
     {
-        "width" : 48,
-        "height" : 30,
-        "corners" : true,
-        "bottom-padding": 4,
+        "width" : 14,
+        "height" :8,
+        "corners" : false,
+        "bottom-padding": 0,
         "level-min": 90,
         "level-max": 100
     }

@@ -55,7 +55,9 @@ class Effect(object):
 
     def mag_to_idx(self, magnitude):
         # Magnitude is 0-100, get index according to min and max
-        return int(((magnitude-self.level_min) / (self.level_max - self.level_min)) * self.height )
+        idx = int(((magnitude-self.level_min) / (self.level_max - self.level_min)) * self.height )
+        print idx
+        return idx
 
 
     def update_led(self, i, color):
@@ -109,7 +111,6 @@ effect = Effect()
 
 # You can play with the parameters here (quiet=False to print the magnitudes for example)
 spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=True, quiet=True, bands=4, callback=effect.receive_magnitudes)
-spectrum.start()
 
 while not hyperion.abort():
     hyperion.setColor(effect.ledsData)

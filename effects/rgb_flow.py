@@ -60,12 +60,12 @@ class Effect(object):
 
         self.processing = False
 
-        self.bands = hyperion.ledCount / 2
+        self.bands = 8
 
         self.mag_min_orig = self.mag_min
 
         self.half = (hyperion.ledCount/2) * 3
-        self.increment = 0
+        self.increment = 3
 
 
     def receive_magnitudes(self, magnitudes):
@@ -93,11 +93,6 @@ class Effect(object):
 
         self.processing = True
 
-        # bass = self.normalize_mag(self.magnitudes[0])
-
-        # sys.stdout.write("\033[K")
-        # sys.stdout.write('\r' + int(self.magnitudes[0])*'|' )
-
         # Copy all values
         self.ledsDataTemp[:] = self.ledsData[:]
 
@@ -108,9 +103,6 @@ class Effect(object):
 
         # Scale them
         for i in range(0, self.bands):
-
-            # Lower minimum for upper bands
-            # self.mag_min = ((self.bands - i) / float(self.bands)) * self.mag_min_orig/2 + self.mag_min_orig/2
 
             self.current_mag = self.normalize_mag(self.magnitudes[i])
 
@@ -127,7 +119,7 @@ class Effect(object):
 effect = Effect()
 
 # You can play with the parameters here (quiet=False to print the magnitudes for example)
-spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=False, quiet=True, bands=effect.bands+30, logamplify=True, interval=20,callback=effect.receive_magnitudes)
+spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=False, quiet=True, bands=effect.bands, interval=20,callback=effect.receive_magnitudes)
 spectrum.start()
 
 while not hyperion.abort():

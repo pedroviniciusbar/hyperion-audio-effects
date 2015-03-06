@@ -20,15 +20,15 @@ import json
 
 # Change this to your Pis / Hyperion data. There is no harm done if wrong data is set here.
 # The connection will simply time out.
-hyperion_host = '192.168.0.15'
+hyperion_host = '192.168.0.14'
 hyperion_port = 19444
 
 # Change this according to your led configuration.
-horizontal_led_num = 48
-vertical_led_num = 30
-first_led_offset_num = 103
+horizontal_led_num = 14
+vertical_led_num = 8
+first_led_offset_num = 0
 leds_in_clockwise_direction = True
-has_corner_leds = True
+has_corner_leds = False
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--gui", help="enable GUI", action="store_true")

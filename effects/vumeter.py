@@ -4,6 +4,8 @@
 from devkit import hyperion
 import time
 
+import webcolors
+
 from effects.spectrum_dump import GstSpectrumDump
 
 
@@ -15,23 +17,54 @@ class Effect(object):
         self.processing = False
         self.ledsData = bytearray(hyperion.ledCount * (0, 0, 0))
 
-        # Adjust these according to hyperion config
-        # For now hardcoded for setups which start from bottom
-        # since the dev kit doesn't support the setImage()
+        args = hyperion.args
 
-        self.width = int(hyperion.args.get('width', 48))
-        self.height = int(hyperion.args.get('height', 30))
-        self.corners = bool(hyperion.args.get('corners', True))
-        self.bottom_padding = int(hyperion.args.get('bottom-padding', 4))
-        self.level_min = int(hyperion.args.get('level-min', 90))
-        self.level_max = int(hyperion.args.get('level-max', 100))
+        self.level_min = int(args.get('level-min', 80))
+        self.level_max = int(args.get('level-max', 100))
 
-        if self.corners:
-            self.height += 2
+        self.left_start = args.get('left-start')
+        self.left_end = args.get('left-end')
+        self.right_start = args.get('right-start')
+        self.right_end = args.get('right-end')
 
-        # Helpers for updating the led array
-        self.pad_left = (self.width - self.bottom_padding) / 2 + 1 # + 1 but why?
-        self.pad_right = self.pad_left + 2*self.height + self.width - 4 # - 4 but why?
+        self.color_start = args.get('color-start', 'green')
+        self.color_end = args.get('color-end', 'red')
+
+        if self.color_start.startswith('#'):
+            self.color_start = webcolors.hex_to_rgb(self.color_start)
+        else:
+            self.color_start = webcolors.name_to_rgb(self.color_start)
+
+        if self.color_end.startswith('#'):
+            self.color_end = webcolors.hex_to_rgb(self.color_end)
+        else:
+            self.color_end = webcolors.name_to_rgb(self.color_end)
+
+        self.leds_left = hyperion.leds_left
+        self.leds_right = hyperion.leds_right
+        self.leds_right.reverse()
+
+        if (self.left_start != None):
+            if None in (self.left_start, self.left_end, self.right_start, self.right_end):
+                raise Exception('Only left start provided, set all or none')
+            else:
+                self.leds_left = []
+                self.leds_right = []
+                step_left = 1
+                if self.left_end < self.left_start:
+                    step_left = -1
+                step_right = 1
+                if self.right_end < self.right_start:
+                    step_right = -1
+                for i in range(self.left_start, self.left_end + step_left, step_left):
+                    self.leds_left.append(i)
+                for i in range(self.right_start, self.right_end + step_right, step_right):
+                    self.leds_right.append(i)
+
+        print self.leds_left
+        print self.leds_right
+
+        self.height = len(self.leds_left)
 
         # Helper for color function
         self.height_float = float(self.height)
@@ -40,7 +73,9 @@ class Effect(object):
         for i in range(0, self.height):
             self.color_map.append(self.get_led_color(i))
 
-
+        print self.color_start
+        print self.color_end
+        print self.color_map
 
 
     def receive_magnitudes(self, magnitudes):
@@ -56,7 +91,6 @@ class Effect(object):
     def mag_to_idx(self, magnitude):
         # Magnitude is 0-100, get index according to min and max
         idx = int(((magnitude-self.level_min) / (self.level_max - self.level_min)) * self.height )
-        print idx
         return idx
 
 
@@ -65,8 +99,17 @@ class Effect(object):
 
 
     def get_led_color(self, i):
-        # Gradient from green to red
-        return (int(255*(i/self.height_float)), int(255*((self.height_float-i)/self.height_float)), 0)
+        # Gradient from start to end
+
+        start_factor = (self.height_float - i) / self.height_float
+        end_factor = i / self.height_float
+
+        r_s, g_s, b_s = self.color_start
+        r_e, g_e, b_e = self.color_end
+
+        return (int(r_s*start_factor + r_e*end_factor % 256),
+                int(g_s*start_factor + g_e*end_factor % 256),
+                int(b_s*start_factor + b_e*end_factor % 256))
 
 
     def update_leds(self):
@@ -88,9 +131,8 @@ class Effect(object):
 
         for i in range(0, self.height):
 
-            left_i = self.pad_left + i
-            right_i = self.pad_right - i # right goes to negative direction
-
+            left_i = self.leds_left[i]
+            right_i = self.leds_right[i]
             color_i = self.color_map[i]
 
             if i <= left or i == left_peak:
@@ -111,6 +153,7 @@ effect = Effect()
 
 # You can play with the parameters here (quiet=False to print the magnitudes for example)
 spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=True, quiet=True, bands=4, callback=effect.receive_magnitudes)
+spectrum.start()
 
 while not hyperion.abort():
     hyperion.setColor(effect.ledsData)

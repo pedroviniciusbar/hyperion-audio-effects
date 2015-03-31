@@ -323,10 +323,12 @@ class GstSpectrumDump(object):
                 spectrum += ' multi-channel=true'
             pipeline.append(spectrum)
         pipeline.append('fakesink')
+
+        stdout('Launching pipeline: ' + ' ! '.join(pipeline))
         self.pipeline = Gst.parse_launch(' ! '.join(pipeline))
         # self.pipeline = Gst.parse_launch('alsasrc ! level message=true in ! fakesink')
 
-        stdout('Using pipeline: ' + ' ! '.join(pipeline))
+        
         # self.pipeline = Gst.Pipeline()
         # for element in pipeline:
         #     self.pipeline.add(element)

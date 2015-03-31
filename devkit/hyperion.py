@@ -11,11 +11,18 @@ import json_client
 ledCount = 0
 
 # the data as set in the hypercon application
-horizontal = 0
-vertical = 0
-first_led_offset = 0
-clockwise_direction = False
-corner_leds = False
+# horizontal = 0
+# vertical = 0
+# first_led_offset = 0
+# clockwise_direction = False
+# corner_leds = False
+leds = None
+leds_top = None
+leds_right = None
+leds_bottom = None
+leds_left = None
+clockwise = False
+
 # the dictionary the hyperion effect will access
 args = {}
 
@@ -24,7 +31,7 @@ _abort = False
 
 """ helper functions """
 
-def init(horizontal_led_num, vertical_led_num, first_led_offset_num, leds_in_clockwise_direction, has_corner_leds):
+def init(_leds, _leds_top, _leds_right, _leds_bottom, _leds_left):
     """
     Initialise the fake hyperion configuration. The values should be identical to your hyperion configuration.
     :param horizontal_led_num: the number of your horizontal leds
@@ -33,14 +40,23 @@ def init(horizontal_led_num, vertical_led_num, first_led_offset_num, leds_in_clo
     :param leds_in_clockwise_direction: boolean: are your leds set up clockwise or not
     :param has_corner_leds: boolean: are there corner leds
     """
-    global ledCount, _ledData, horizontal, vertical, first_led_offset, clockwise_direction, corner_leds
+    # global ledCount, _ledData, horizontal, vertical, first_led_offset, clockwise_direction, corner_leds, led_array
+    global ledCount, leds, leds_top, leds_right, leds_bottom, leds_left, clockwise
 
-    ledCount = (2 * horizontal_led_num) + (2 * vertical_led_num)
-    horizontal = horizontal_led_num
-    vertical = vertical_led_num
-    first_led_offset = first_led_offset_num
-    clockwise_direction = leds_in_clockwise_direction
-    corner_leds = has_corner_leds
+    ledCount = len(_leds)
+    leds = _leds
+    leds_top = _leds_top
+    leds_right = _leds_right
+    leds_bottom = _leds_bottom
+    leds_left = _leds_left
+
+
+    # horizontal = horizontal_led_num
+    # vertical = vertical_led_num
+    # first_led_offset = first_led_offset_num
+    # clockwise_direction = leds_in_clockwise_direction
+    # corner_leds = has_corner_leds
+    # led_array = leds
 
     _ledData = bytearray()
     for x in range(ledCount * 3):

@@ -3,11 +3,13 @@
     "script" : "vumeter.py",
     "args" :
     {
-        "width" : 14,
-        "height" :8,
-        "corners" : false,
-        "bottom-padding": 0,
+        "color-start": "#00FF00",
+        "color-end": "#FF0000",
         "level-min": 90,
-        "level-max": 100
+        "level-max": 100,
+        "left-start": null,
+        "left-end": null,
+        "right-start": null,
+        "right-end": null
     }
 }

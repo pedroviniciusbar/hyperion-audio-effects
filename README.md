@@ -5,40 +5,26 @@ Hyperion audio effects
 
 Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdzwan/hyperion).
 
-- Based on https://github.com/Fabi1080/hyperion_effects_dev_kit
-- Also uses this neat wrapper (modified for Gstreamer 1.0) https://github.com/Wintervenom/gst-spectrumdump
-- Pull requests or improvement suggestions welcome
-- Not sure if it's possible get the hyperion effects engine to import PyGI, so for now these effects must be run separately using the json connection
+Update 31/3/2015: New parameters and hyperion config file parsing
 
-### Installation and running on Debian
+### Installation and running on Debian **
 
 1. Install Gstreamer 1.0 and PyGI: `libgstreamer1.0-0 gir1.2-gstreamer-1.0 gir1.2-glib-2.0 gir1.2-gst-plugins-base-1.0 gstreamer1.0-plugins-good gstreamer1.0-tools gstreamer1.0-alsa gstreamer1.0-pulseaudio`
 2. Install Tkinter for GUI: `apt-get install python-tk`
-3. Set hyperion settings in main.py
-4. Put `options snd-aloop index=-2` in end of `/etc/modprobe.d/alsa-base.conf` to prevent loopback device for getting first card index
-5. Enable loopback device `modprobe snd-aloop`
-6. Put the included `.asoundrc` to your home folder (backup old) and change the soundcard index if needed (`"hw:<card>,<device>"`, check `aplay -l`) *
-7. Reboot or reload alsa `sudo alsa force-reload`
-8. Run `python main.py` (`--gui` for gui, `--json` for network connection)
-9. Play some audio
-10. Levels should be drawn to gui, also sent to hyperion if json enabled
-11. Exit by closing the GUI or Ctrl+c
-
-### Installation and running on Windows **
-
-1. Install Python 2.7 (set python to PATH)
-2. Install needed components from PyGI AIO: http://sourceforge.net/projects/pygobjectwin32/files/
-   - Do you have portable? No
-   - Choose destination: 2.7
-   - Choose packages: Base packages, Gst-plugins, Gst-plugins-extra, Gstreamer
-   - Do you want classic? No
-   - Install
-3. Select "Stereo mix" as recording device (if available, or mic)
-3. Set hyperion settings in main.py
-4. Run `python main.py` (`--gui` for gui, `--json` for network connection)
-5. Play some audio
-6. Levels should be drawn to gui, also sent to hyperion if json enabled
-7. Exit by closing the GUI or Ctrl+c
+3. Install pip: `apt-get install python-pip`
+4. Install dependencies: `pip install requirements.txt`
+5. Set hyperion settings in main.py
+6. Put `options snd-aloop index=-2` in end of `/etc/modprobe.d/alsa-base.conf` to prevent loopback device for getting first card index
+7. Enable loopback device `modprobe snd-aloop`
+8. Put the included `.asoundrc` to your home folder (backup old) and change the soundcard index if needed (`"hw:<card>,<device>"`, check `aplay -l`) *
+9. Reboot or reload alsa `sudo alsa force-reload`
+10. Run `python main.py` with options:
+	- `--config=<path>` path to hyperion config file (defaults to `./hyperion.config.json`)
+	- `--gui` for gui
+	- `--json` for network connection (`--host=<ip> --port=<port>`)
+11. Play some audio
+12. Levels should be drawn to gui, also sent to hyperion if json enabled
+13. Exit by closing the GUI or Ctrl+c
 
 ### Effects development
 1. Copy one of the script & config pairs in `effects/` (e.g. `myeffect.py` and `myeffect.json`) and then it can be passed as `--effect=myeffect` (json values can be read from `hyperion.args` like in normal hyperion effects)
@@ -49,6 +35,11 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
       * With `vumeter=False` you get spectrum magnitudes for the amount of `bands` (defaults to 128)
 3. Update the leds by modifying the bytearray `self.ledsData` according to values in `self.magnitudes` (I've done it in method `update_leds()`)
 
+### Effect: VU Meter
+- Volume bars for left and right of your hyperion setup, or by setting indices manually 
+
+### TODO: Rest of the effects need fixes to work with the updated code
+
 \* Check this if you have pulseaudio: [#4](https://github.com/RanzQ/hyperion-audio-effects/issues/4#issuecomment-67764593)
 
-\** Trying to figure out what is the bottleneck on Windows, doesn't run very smoothly
+\** Windows istructions were removed since performance was so poor since Gstreamer is meant for Linux

@@ -22,6 +22,7 @@ Update 31/3/2015: New parameters and hyperion config file parsing
 	- `--config=<path>` path to hyperion config file (defaults to `./hyperion.config.json`)
 	- `--gui` for gui
 	- `--json` for network connection (`--host=<ip> --port=<port>`)
+	- `--help` to see all options
 11. Play some audio
 12. Levels should be drawn to gui, also sent to hyperion if json enabled
 13. Exit by closing the GUI or Ctrl+c

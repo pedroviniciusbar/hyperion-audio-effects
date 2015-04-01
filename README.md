@@ -13,19 +13,18 @@ Update 31/3/2015: New parameters and hyperion config file parsing
 2. Install Tkinter for GUI: `apt-get install python-tk`
 3. Install pip: `apt-get install python-pip`
 4. Install dependencies: `pip install -r requirements.txt`
-5. Set hyperion settings in main.py
-6. Put `options snd-aloop index=-2` in end of `/etc/modprobe.d/alsa-base.conf` to prevent loopback device for getting first card index
-7. Enable loopback device `modprobe snd-aloop`
-8. Put the included `.asoundrc` to your home folder (backup old) and change the soundcard index if needed (`"hw:<card>,<device>"`, check `aplay -l`) *
-9. Reboot or reload alsa `sudo alsa force-reload`
-10. Run `python main.py` with options:
+5. Put `options snd-aloop index=-2` in end of `/etc/modprobe.d/alsa-base.conf` to prevent loopback device for getting first card index
+6. Enable loopback device `modprobe snd-aloop`
+7. Put the included `.asoundrc` to your home folder (backup old) and change the soundcard index if needed (`"hw:<card>,<device>"`, check `aplay -l`) *
+8. Reboot or reload alsa `sudo alsa force-reload`
+9. Run `python main.py` with options:
 	- `--config=<path>` path to hyperion config file (defaults to `./hyperion.config.json`)
 	- `--gui` for gui
 	- `--json` for network connection (`--host=<ip> --port=<port>`)
 	- `--help` to see all options
-11. Play some audio
-12. Levels should be drawn to gui, also sent to hyperion if json enabled
-13. Exit by closing the GUI or Ctrl+c
+10. Play some audio
+11. Levels should be drawn to gui, also sent to hyperion if json enabled
+12. Exit by closing the GUI or Ctrl+c
 
 ### Effects development
 1. Copy one of the script & config pairs in `effects/` (e.g. `myeffect.py` and `myeffect.json`) and then it can be passed as `--effect=myeffect` (json values can be read from `hyperion.args` like in normal hyperion effects)

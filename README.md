@@ -12,7 +12,7 @@ Update 31/3/2015: New parameters and hyperion config file parsing
 1. Install Gstreamer 1.0 and PyGI: `libgstreamer1.0-0 gir1.2-gstreamer-1.0 gir1.2-glib-2.0 gir1.2-gst-plugins-base-1.0 gstreamer1.0-plugins-good gstreamer1.0-tools gstreamer1.0-alsa gstreamer1.0-pulseaudio`
 2. Install Tkinter for GUI: `apt-get install python-tk`
 3. Install pip: `apt-get install python-pip`
-4. Install dependencies: `pip install requirements.txt`
+4. Install dependencies: `pip install -r requirements.txt`
 5. Set hyperion settings in main.py
 6. Put `options snd-aloop index=-2` in end of `/etc/modprobe.d/alsa-base.conf` to prevent loopback device for getting first card index
 7. Enable loopback device `modprobe snd-aloop`

@@ -6,10 +6,12 @@
         "brightness" : 1.0,
         "reverse" : false,
         "magnitude-min": 0.0,
-        "magnitude-max": 100.0,
+        "magnitude-max": 200.0,
         "color-speed": 0,
-        "mirror": true,
+        "mirror": false,
+        "reverse": true,
         "start-index": 0,
-        "band-width-exp": 3
+        "band-width-exp": 3,
+        "interval": 30
     }
 }

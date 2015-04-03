@@ -26,9 +26,11 @@ class Effect(object):
         self.mag_min = float(hyperion.args.get('magnitude-min', 30.0))
         self.mag_max = float(hyperion.args.get('magnitude-max', 60.0))
         self.mirror = float(hyperion.args.get('mirror', True))
+        self.reverse = float(hyperion.args.get('reverse', False))
         self.bw_exp = int(hyperion.args.get('band-width-exp', 5))
         self.start_index = int(hyperion.args.get('start-index', 0))
         self.increment = hyperion.args.get('color-speed', 3)
+        self.interval = hyperion.args.get('interval', 100)
 
         # TODO: Implement possibility to change start index
 
@@ -55,11 +57,12 @@ class Effect(object):
                 hue = float(color_steps-i)/color_steps
                 colors.append(colorsys.hsv_to_rgb(hue, saturation, brightness))
 
-        for i in range(color_steps):
-            c = colors[i]
-            self.ledsData += bytearray((int(255*c[0]), int(255*c[1]), int(255*c[2])))
+        if not self.reverse:
+            for i in range(color_steps):
+                c = colors[i]
+                self.ledsData += bytearray((int(255*c[0]), int(255*c[1]), int(255*c[2])))
 
-        if self.mirror:
+        if self.mirror or self.reverse:
             for i in range(color_steps, 0, -1):
                 c = colors[i-1]
                 self.ledsData += bytearray((int(255*c[0]), int(255*c[1]), int(255*c[2])))
@@ -196,9 +199,10 @@ class Effect(object):
 
             for j in range(0,3):
 
-                self.ledsDataTemp[i*3+j] = (self.ledsDataTemp[i*3+j] * self.norm_mag) >> 8
+                if not self.reverse:
+                    self.ledsDataTemp[i*3+j] = (self.ledsDataTemp[i*3+j] * self.norm_mag) >> 8
 
-                if self.mirror:
+                if self.mirror or self.reverse:
                     self.ledsDataTemp[-1-i*3-j] = (self.ledsDataTemp[-1-i*3-j] * self.norm_mag) >> 8
 
         self.processing = False
@@ -208,7 +212,7 @@ class Effect(object):
 effect = Effect()
 
 # You can play with the parameters here (quiet=False to print the magnitudes for example)
-spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=False, quiet=True, bands=effect.bands, logamplify=False, cutoff=effect.cutoff, interval=40,callback=effect.receive_magnitudes)
+spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=False, quiet=True, bands=effect.bands, logamplify=False, cutoff=effect.cutoff, interval=effect.interval,callback=effect.receive_magnitudes)
 spectrum.start()
 
 while not hyperion.abort():

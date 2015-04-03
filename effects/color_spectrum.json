@@ -1,0 +1,15 @@
+{
+    "name" : "Color Spectrum",
+    "script" : "color_spectrum.py",
+    "args" :
+    {
+        "brightness" : 1.0,
+        "reverse" : false,
+        "magnitude-min": 0.0,
+        "magnitude-max": 100.0,
+        "color-speed": 0,
+        "mirror": true,
+        "start-index": 0,
+        "band-width-exp": 3
+    }
+}

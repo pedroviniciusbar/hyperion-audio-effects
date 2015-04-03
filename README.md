@@ -37,9 +37,16 @@ Update 31/3/2015: New parameters and hyperion config file parsing
 3. Update the leds by modifying the bytearray `self.ledsData` according to values in `self.magnitudes` (I've done it in method `update_leds()`)
 
 ### Effect: VU Meter
-- Volume bars for left and right of your hyperion setup, or by setting indices manually 
+- Volume bars for left and right of your hyperion setup, or by setting indices manually
+- Min and max volume and colors can be adjusted from config
 
-### TODO: Rest of the effects need fixes to work with the updated code
+### Effect: Color spectrum
+- Leds strip is divided into octaves 1-8
+- Low frequencies start from red, ending in pink at high frequencies
+- Adjust your sound volume if the leds are too dim or bright (no volume normalization yet)
+- Config has a field `band-width-exp`, if you have performance issues, try with higher values (it sets FFT bin size to 2^x Hz, e.g. 2^3 = 8 Hz, affects on bass accuracy)
+- Set `mirror` to false if you want to use whole strip instead of splitting and mirroring
+- TODO: Adjustable colors
 
 \* Check this if you have pulseaudio: [#4](https://github.com/RanzQ/hyperion-audio-effects/issues/4#issuecomment-67764593)
 

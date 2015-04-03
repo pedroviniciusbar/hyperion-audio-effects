@@ -101,6 +101,7 @@ class GstSpectrumDump(object):
         self.interval = opts.get('interval', 50)
         self.callback = opts.get('callback')
         self.multichannel = opts.get('multichannel', False)
+        self.bands_cutoff = opts.get('cutoff', 96)
         self.quiet = opts.get('quiet', self.callback is not None)
         self.pipeline = None
         self.gainhits = 0
@@ -128,11 +129,11 @@ class GstSpectrumDump(object):
             self.source = pipeline.format(fifo)
 
         # TODO: Read bands cutoff from options
-        if self.bands > 78:
-            self.bands_cutoff = 78
-            # self.bands_cutoff = int(round(self.bands * (7/8.0), 0))
-        else:
-            self.bands_cutoff = None
+        # if self.bands > 78:
+        #     self.bands_cutoff = 78
+        #     # self.bands_cutoff = int(round(self.bands * (7/8.0), 0))
+        # else:
+            # self.bands_cutoff = None
 
 
 

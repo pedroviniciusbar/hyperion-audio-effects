@@ -5,8 +5,8 @@ Hyperion audio effects
 
 Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdzwan/hyperion).
 
-Update 8/4/2015: Some improvements and cleanup, new video
-Update 31/3/2015: New parameters and hyperion config file parsing
+- Update 8/4/2015: Some improvements and cleanup, new video
+- Update 31/3/2015: New parameters and hyperion config file parsing
 
 ### Installation and running on Debian **
 

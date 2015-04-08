@@ -325,11 +325,10 @@ class GstSpectrumDump(object):
             pipeline.append(spectrum)
         pipeline.append('fakesink')
 
-        stdout('Launching pipeline: ' + ' ! '.join(pipeline))
+        # stdout('Launching pipeline: ' + ' ! '.join(pipeline))
         self.pipeline = Gst.parse_launch(' ! '.join(pipeline))
         # self.pipeline = Gst.parse_launch('alsasrc ! level message=true in ! fakesink')
 
-        
         # self.pipeline = Gst.Pipeline()
         # for element in pipeline:
         #     self.pipeline.add(element)
@@ -340,9 +339,9 @@ class GstSpectrumDump(object):
         # self.bus.add_signal_watch_full(GLib.PRIORITY_DEFAULT)
         self.conn = self.bus.connect('message', self.on_message)
         # self.source_id = self.bus.add_watch(GLib.PRIORITY_DEFAULT, self.on_message, None)
-        stdout("Bus connected.")
+        # stdout("Bus connected.")
         self.pipeline.set_state(Gst.State.PLAYING)
-        stdout("Pipeline STATE_PLAYING set.")
+        # stdout("Pipeline STATE_PLAYING set.")
 
 
     def stop_pipeline(self):
@@ -350,11 +349,11 @@ class GstSpectrumDump(object):
         if self.pipeline:
             self.bus.disconnect(self.conn)
             # GLib.Source.remove(self.source_id) # Not working?
-            stdout("Bus disconnected.")
+            # stdout("Bus disconnected.")
             self.bus.remove_signal_watch()
-            stdout("Signal watch removed.")
+            # stdout("Signal watch removed.")
             self.pipeline.set_state(Gst.State.NULL)
-            stdout("Pipeline STATE_NULL set.")
+            # stdout("Pipeline STATE_NULL set.")
 
 
     def start(self):
@@ -368,19 +367,14 @@ class GstSpectrumDump(object):
         self.loop_thread = Thread(target=self.loop.run)
         self.loop_thread.daemon = True
         self.loop_thread.start()
-
-        stdout("Pipeline initialized.")
-
-
-    def iterate(self):
-        self.loop_context.iteration(False) # True = Block until any events dispatch
+        # stdout("Pipeline initialized.")
 
 
     def stop(self):
-        stdout("Stopping pipeline...")
+        # stdout("Stopping pipeline...")
         self.stop_pipeline()
         # Quit the MainLoop
         self.loop.quit()
         # Wait for the thread
         self.loop_thread.join()
-        stdout("Done.")
+        # stdout("Done.")

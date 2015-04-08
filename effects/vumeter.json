@@ -10,6 +10,7 @@
         "left-start": null,
         "left-end": null,
         "right-start": null,
-        "right-end": null
+        "right-end": null,
+        "interval": 50
     }
 }

@@ -128,15 +128,15 @@ class Effect(object):
         #     self.bins[j] = j+1
         #     j += 1
 
-        print 'leds_per_octave: {}'.format(self.leds_per_octave)
-        print 'leds_per_last_octave: {}'.format(self.leds_per_last_octave)
+        # print 'leds_per_octave: {}'.format(self.leds_per_octave)
+        # print 'leds_per_last_octave: {}'.format(self.leds_per_last_octave)
         # print 'bins: {}'.format(self.bins)
 
         # if self.bins[11] < 16:
         #     for i in range(0, 12):
         #         self.bins[i] = i+1
 
-        print 'bins: {}'.format(self.bins)
+        # print 'bins: {}'.format(self.bins)
 
         # With 32 Hz bands, we get 9 bins for bass, so lets adjust the bands based on that
 
@@ -215,6 +215,8 @@ effect = Effect()
 spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=False, quiet=True, bands=effect.bands, logamplify=False, cutoff=effect.cutoff, interval=effect.interval,callback=effect.receive_magnitudes)
 spectrum.start()
 
+sleep_time = effect.interval / 1000.0
+
 while not hyperion.abort():
     hyperion.setColor(effect.ledsDataTemp)
 
@@ -226,7 +228,6 @@ while not hyperion.abort():
     # ld[:h] = ld[h-i:h] + ld[:h-i]
     # ld[h:] = ld[h+i:] + ld[h:h+i]
 
-    time.sleep(0.10)
-
+    time.sleep(sleep_time)
 
 spectrum.stop()

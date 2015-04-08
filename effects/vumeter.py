@@ -21,6 +21,7 @@ class Effect(object):
 
         self.level_min = int(args.get('level-min', 80))
         self.level_max = int(args.get('level-max', 100))
+        self.interval = int(args.get('interval', 100))
 
         self.left_start = args.get('left-start')
         self.left_end = args.get('left-end')
@@ -151,13 +152,14 @@ class Effect(object):
 
 effect = Effect()
 
-# You can play with the parameters here (quiet=False to print the magnitudes for example)
-spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=True, quiet=True, bands=4, callback=effect.receive_magnitudes)
+spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=True, interval=effect.interval, quiet=True, bands=4, callback=effect.receive_magnitudes)
 spectrum.start()
+
+sleep_time = effect.interval / 1000.0
 
 while not hyperion.abort():
     hyperion.setColor(effect.ledsData)
-    time.sleep(0.05)
+    time.sleep(sleep_time)
 
 # This must be called to stop the gstreamer
 spectrum.stop()

@@ -175,11 +175,12 @@ def main():
         # After the window was closed abort the effect through the fake hyperion module
         hyperion.set_abort(True)
     else:
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            hyperion.set_abort(True)
+        print "Exit by typing 'x' or 'exit'"
+        cmd = ''
+        while cmd != 'x' and cmd != 'exit':
+            cmd = raw_input()
+
+        hyperion.set_abort(True)
 
     # wait for the thread to stop
     effect_thread.join()

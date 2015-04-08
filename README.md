@@ -1,10 +1,11 @@
 Hyperion audio effects
 ======================
 
-##### Examples: https://www.youtube.com/watch?v=HiAlv-mW9UI https://www.youtube.com/watch?v=Hv3B8iVsPho
+##### Examples: https://www.youtube.com/watch?v=n-_0KG4EsY8 https://www.youtube.com/watch?v=HiAlv-mW9UI
 
 Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdzwan/hyperion).
 
+Update 8/4/2015: Some improvements and cleanup, new video
 Update 31/3/2015: New parameters and hyperion config file parsing
 
 ### Installation and running on Debian **

@@ -50,4 +50,4 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 
 \* Check this if you have pulseaudio: [#4](https://github.com/RanzQ/hyperion-audio-effects/issues/4#issuecomment-67764593)
 
-\** Windows istructions were removed since performance was so poor since Gstreamer is meant for Linux
+\** Windows istructions were removed since performance was poor due to the fact that Gstreamer is meant for Linux

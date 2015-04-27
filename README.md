@@ -15,7 +15,7 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 3. Install pip: `sudo apt-get install python-pip`
 4. Install dependencies: `sudo pip install -r requirements.txt` (or use virtualenv if you like)
 5. Put `options snd-aloop index=-2` in end of `/etc/modprobe.d/alsa-base.conf` to prevent loopback device for getting first card index
-6. Enable loopback device `modprobe snd-aloop`
+6. Enable loopback device `modprobe snd-aloop` (and type line `snd-aloop` to /etc/modules to make it permanent)
 7. Put the included `.asoundrc` to your home folder (backup old) and change the soundcard index if needed (`"hw:<card>,<device>"`, check `aplay -l`) *
 8. Reboot or reload alsa `sudo alsa force-reload`
 9. Run `python main.py` with options:

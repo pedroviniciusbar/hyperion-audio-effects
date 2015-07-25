@@ -12,7 +12,7 @@
         "reverse": true,
         "start-index": 0,
         "band-width-exp": 2,
-        "interval": 100,
+        "interval": 50,
         "rainbow": false,
     	"color-low": "#00FF00",
         "color-high": "#FF0000"

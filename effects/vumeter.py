@@ -152,7 +152,7 @@ class Effect(object):
 
 effect = Effect()
 
-spectrum = GstSpectrumDump(source='autoaudiosrc', vumeter=True, interval=effect.interval, quiet=True, bands=4, callback=effect.receive_magnitudes)
+spectrum = GstSpectrumDump(source=hyperion.args.get('audiosrc','autoaudiosrc'), vumeter=True, interval=effect.interval, quiet=True, bands=4, callback=effect.receive_magnitudes)
 spectrum.start()
 
 sleep_time = effect.interval / 1000.0

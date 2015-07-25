@@ -37,6 +37,7 @@ parser.add_argument("--effect", help="select effect", default="vumeter")
 parser.add_argument("--config", help="path to config file", default="./hyperion.config.json")
 parser.add_argument("--host", help="JSON host (default localhost)", default="localhost")
 parser.add_argument("--port", help="JSON port (default 19444)", type=int, default=19444)
+parser.add_argument("--audiosrc", help="Gstreamer audio source string", default="autoaudiosrc")
 
 
 
@@ -160,8 +161,9 @@ def main():
 
     with open('effects/' + args.effect + '.json') as effect_json:
         effect = json.load(effect_json)
-        hyperion.set_args(effect.get('args', {}))
-
+        effect_args = effect.get('args', {})
+        effect_args['audiosrc'] = args.audiosrc
+        hyperion.set_args(effect_args)
 
     # create own thread for the effect
     effect_thread = Thread(target=run_effect, kwargs={'effect': args.effect})

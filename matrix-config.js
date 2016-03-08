@@ -12,7 +12,7 @@ var hblock = 1.0 / width
 var vblock = 1.0 / height
 
 function addLed (index, x, y) {
-  if (debug) console.log(index + ':', x + ',', y)
+  // if (debug) console.log(index + ':', x + ',', y)
   leds.push({
     index: index,
     hscan: {
@@ -89,31 +89,47 @@ try {
   var startYX = start.split('-')
   var startX = startYX[1] === 'right' ? width - 1 : 0
   var startY = startYX[0] === 'bottom' ? height - 1 : 0
-  var endX = startX === 0 ? width : -1
-  var endY = startY === 0 ? height : -1
-  var growX = startX === 0 ? 1 : -1
-  var growY = startY === 0 ? 1 : -1
+  var endX = startX === 0 ? width - 1 : 0
+  var endY = startY === 0 ? height - 1 : 0
 
-  var evenY = height % 2 === 0
+  var forward = startX < endX
+
+  var downward = startY < endY
+
+  var debugMatrix = new Array(height)
+  for (var i = 0; i < height; i++) {
+    debugMatrix[i] = new Array(width)
+  }
 
   var x, y
 
-  for (y = startY; y !== endY; y += growY) {
-    if (parallel || evenY && y % 2 === 0 || !evenY && y % 2 === 1) {
-      // Forward
-      if (debug) console.log('\ni: x, y (forward)\n------')
-      for (x = startX; x !== endX; x += growX) {
-        addLed(index, x, y)
-        index++
-      }
-    } else if (!parallel) {
-      // Backward
-      if (debug) console.log('\ni: x, y (backward)\n------')
-      for (x = endX - growX; x !== startX - growX; x -= growX) {
-        addLed(index, x, y)
-        index++
-      }
+  for (y = startY; downward && y <= endY || !downward && y >= endY; y += downward ? 1 : -1) {
+    for (x = startX; forward && x <= endX || !forward && x >= endX; x += forward ? 1 : -1) {
+      addLed(index, x, y)
+      if (debug) debugMatrix[y][x] = index
+      index++
     }
+    if (!parallel) {
+      forward = !forward
+      var tmp = startX
+      startX = endX
+      endX = tmp
+    }
+  }
+
+  if (debug) {
+    var debugStr = ''
+    for (i = 0; i < debugMatrix.length; i++) {
+      for (var j = 0; j < debugMatrix[i].length; j++) {
+        var idx = debugMatrix[i][j]
+        if (idx == null) idx = '   '
+        else if (idx < 10) idx = '  ' + idx
+        else if (idx < 100) idx = ' ' + idx
+        debugStr += '[' + idx + ']'
+      }
+      debugStr += '\n'
+    }
+    console.log(debugStr)
   }
 } catch (e) {
   console.error('Invalid arguments:', e)

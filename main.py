@@ -12,7 +12,7 @@ Last modified on 28.3.2015
 
 from threading import Thread
 
-from devkit import hyperion
+from modules import hyperion
 
 import runpy
 import argparse

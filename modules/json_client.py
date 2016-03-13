@@ -9,8 +9,6 @@ Created on 27.11.2014, last updated on 02.02.2015
 
 import socket
 
-client = None
-
 class JsonClient(object):
 
     def __init__(self, host, port, timeout=10):
@@ -20,6 +18,9 @@ class JsonClient(object):
         self.timeout = timeout
         self.connected = False
         self.socket = None
+
+    def __del__(self):
+        self.disconnect()
 
     def connect(self):
 
@@ -78,20 +79,3 @@ class JsonClient(object):
             self.connect()
             if self.connected:
                 print "Connected."
-
-
-def open_connection(host, port, timeout=10):
-    global client
-    client = JsonClient(host, port, timeout)
-    client.connect()
-
-
-def close_connection():
-    global client
-    client.disconnect()
-
-
-def send_led_data(led_data):
-    global client
-    if client != None:
-        client.send_led_data(led_data)

@@ -6,7 +6,7 @@ Created on 27.11.2014
 @author: Fabian Hertwig
 """
 import imp
-import json_client
+from json_client import JsonClient
 
 ledCount = 0
 
@@ -23,6 +23,9 @@ leds_bottom = None
 leds_left = None
 clockwise = False
 
+hyperion_json = None
+proto_client = None
+
 # the dictionary the hyperion effect will access
 args = {}
 
@@ -31,7 +34,7 @@ _abort = False
 
 """ helper functions """
 
-def init(_leds, _leds_top, _leds_right, _leds_bottom, _leds_left):
+def init(_leds, _leds_top, _leds_right, _leds_bottom, _leds_left, proto, json, host, port):
     """
     Initialise the fake hyperion configuration. The values should be identical to your hyperion configuration.
     :param horizontal_led_num: the number of your horizontal leds
@@ -41,7 +44,7 @@ def init(_leds, _leds_top, _leds_right, _leds_bottom, _leds_left):
     :param has_corner_leds: boolean: are there corner leds
     """
     # global ledCount, _ledData, horizontal, vertical, first_led_offset, clockwise_direction, corner_leds, led_array
-    global ledCount, leds, leds_top, leds_right, leds_bottom, leds_left, clockwise
+    global ledCount, leds, leds_top, leds_right, leds_bottom, leds_left, clockwise, hyperion_json, proto_client
 
     ledCount = len(_leds)
     leds = _leds
@@ -49,6 +52,15 @@ def init(_leds, _leds_top, _leds_right, _leds_bottom, _leds_left):
     leds_right = _leds_right
     leds_bottom = _leds_bottom
     leds_left = _leds_left
+
+    if proto and not json:
+        from lib.hyperion.Hyperion import Hyperion
+        proto_client = Hyperion(host, port)
+
+    if json:
+        from devkit.JsonClient import JsonClient
+        hyperion_json = JsonClient(host, port, 10)
+        hyperion_json.connect()
 
 
     # horizontal = horizontal_led_num
@@ -88,13 +100,17 @@ def set_args(_args):
 def abort():
     return _abort
 
+def send_data(data):
+    global hyperion_json, proto_client
+    if hyperion_json is not None:
+        hyperion_json.send_led_data(data)
 
 def set_color_led_data(led_data):
     global _ledData
     imp.acquire_lock()
     _ledData = bytearray(led_data)
     imp.release_lock()
-    json_client.send_led_data(led_data)
+    send_data(_ledData)
 
 
 def set_color_rgb(red, green, blue):
@@ -105,8 +121,7 @@ def set_color_rgb(red, green, blue):
         _ledData[3*i + 1] = green
         _ledData[3*i + 2] = blue
     imp.release_lock()
-    json_client.send_led_data(_ledData)
-
+    send_data(_ledData)
 
 def setColor(*args):
     if len(args) == 1:

@@ -1,12 +1,15 @@
 """
-This module is used to fake the original hyperion functions
+This module is used to fake the original hyperion functions and to store
+interthread variables for led data and images
 
 Created on 27.11.2014
+Last updated on 13.3.2016
 
 @author: Fabian Hertwig
+@author: Juha Rantanen
 """
+
 import imp
-from json_client import JsonClient
 
 ledCount = 0
 
@@ -23,28 +26,22 @@ leds_bottom = None
 leds_left = None
 clockwise = False
 
-hyperion_json = None
-proto_client = None
-
 # the dictionary the hyperion effect will access
 args = {}
 
 _ledData = None
+_imageData = None
+_imageWidth = 0
+_imageHeight = 0
 _abort = False
 
 """ helper functions """
 
-def init(_leds, _leds_top, _leds_right, _leds_bottom, _leds_left, proto, json, host, port):
+def init(_leds, _leds_top, _leds_right, _leds_bottom, _leds_left):
     """
-    Initialise the fake hyperion configuration. The values should be identical to your hyperion configuration.
-    :param horizontal_led_num: the number of your horizontal leds
-    :param vertical_led_num: the number of your vertical leds
-    :param first_led_offset_num: the offset value
-    :param leds_in_clockwise_direction: boolean: are your leds set up clockwise or not
-    :param has_corner_leds: boolean: are there corner leds
+    Initialise the fake hyperion.
     """
-    # global ledCount, _ledData, horizontal, vertical, first_led_offset, clockwise_direction, corner_leds, led_array
-    global ledCount, leds, leds_top, leds_right, leds_bottom, leds_left, clockwise, hyperion_json, proto_client
+    global ledCount, leds, leds_top, leds_right, leds_bottom, leds_left, clockwise
 
     ledCount = len(_leds)
     leds = _leds
@@ -52,23 +49,6 @@ def init(_leds, _leds_top, _leds_right, _leds_bottom, _leds_left, proto, json, h
     leds_right = _leds_right
     leds_bottom = _leds_bottom
     leds_left = _leds_left
-
-    if proto and not json:
-        from lib.hyperion.Hyperion import Hyperion
-        proto_client = Hyperion(host, port)
-
-    if json:
-        from devkit.JsonClient import JsonClient
-        hyperion_json = JsonClient(host, port, 10)
-        hyperion_json.connect()
-
-
-    # horizontal = horizontal_led_num
-    # vertical = vertical_led_num
-    # first_led_offset = first_led_offset_num
-    # clockwise_direction = leds_in_clockwise_direction
-    # corner_leds = has_corner_leds
-    # led_array = leds
 
     _ledData = bytearray()
     for x in range(ledCount * 3):
@@ -96,21 +76,14 @@ def set_args(_args):
 
 """ fake hyperion functions """
 
-
 def abort():
     return _abort
-
-def send_data(data):
-    global hyperion_json, proto_client
-    if hyperion_json is not None:
-        hyperion_json.send_led_data(data)
 
 def set_color_led_data(led_data):
     global _ledData
     imp.acquire_lock()
     _ledData = bytearray(led_data)
     imp.release_lock()
-    send_data(_ledData)
 
 
 def set_color_rgb(red, green, blue):
@@ -121,7 +94,6 @@ def set_color_rgb(red, green, blue):
         _ledData[3*i + 1] = green
         _ledData[3*i + 2] = blue
     imp.release_lock()
-    send_data(_ledData)
 
 def setColor(*args):
     if len(args) == 1:
@@ -130,3 +102,11 @@ def setColor(*args):
         set_color_rgb(args[0], args[1], args[2])
     else:
         raise TypeError('setColor takes 1 or 3 arguments')
+
+def setImage(width, height, image_data):
+    global _imageData
+    imp.acquire_lock()
+    _imageWidth = width
+    _imageHeight = height
+    _imageData = bytearray(image_data)
+    imp.release_lock()

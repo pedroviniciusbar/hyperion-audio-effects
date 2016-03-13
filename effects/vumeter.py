@@ -1,7 +1,6 @@
-# Hyperion audio visualization effect by RanzQ
-# ranzq87 [(at)] gmail.com
+"""VU meter effect."""
 
-from devkit import hyperion
+from modules import hyperion
 import time
 
 import webcolors
@@ -15,7 +14,7 @@ class Effect(object):
 
     def __init__(self):
         self.processing = False
-        self.ledsData = bytearray(hyperion.ledCount * (0, 0, 0))
+        self._leds_data = bytearray(hyperion.ledCount * (0, 0, 0))
 
         args = hyperion.args
 
@@ -45,7 +44,9 @@ class Effect(object):
         self.leds_right = hyperion.leds_right
         self.leds_right.reverse()
 
-        if (self.left_start != None):
+        self._magnitudes = None
+
+        if self.left_start is not None:
             if None in (self.left_start, self.left_end, self.right_start, self.right_end):
                 raise Exception('Only left start provided, set all or none')
             else:
@@ -62,7 +63,11 @@ class Effect(object):
                 for i in range(self.right_start, self.right_end + step_right, step_right):
                     self.leds_right.append(i)
 
+        print 'Effect: VU meter'
+        print '----------------'
+        print 'Left leds:'
         print self.leds_left
+        print 'Right leds:'
         print self.leds_right
 
         self.height = len(self.leds_left)
@@ -74,19 +79,40 @@ class Effect(object):
         for i in range(0, self.height):
             self.color_map.append(self.get_led_color(i))
 
-        print self.color_start
-        print self.color_end
-        print self.color_map
+        # print self.color_start
+        # print self.color_end
+        # print self.color_map
 
+        self._spectrum = GstSpectrumDump(
+            source=hyperion.args.get('audiosrc','autoaudiosrc'),
+            vumeter=True,
+            interval=self.interval,
+            quiet=True,
+            bands=4,
+            callback=self.receive_magnitudes
+            )
+        self._spectrum.start()
+
+        print 'Effect started, waiting for gstreamer messages...'
+
+    def __del__(self):
+        self.stop()
+
+    def stop(self):
+        self._spectrum.stop()
 
     def receive_magnitudes(self, magnitudes):
+
+        if hyperion.abort():
+            self.stop()
 
         # Don't update when processing
         if self.processing:
             return
         else:
-            self.magnitudes = magnitudes
+            self._magnitudes = magnitudes
             self.update_leds()
+            hyperion.setColor(self._leds_data)
 
 
     def mag_to_idx(self, magnitude):
@@ -96,7 +122,7 @@ class Effect(object):
 
 
     def update_led(self, i, color):
-        self.ledsData[3*i:3*i+3] = color
+        self._leds_data[3*i:3*i+3] = color
 
 
     def get_led_color(self, i):
@@ -125,10 +151,10 @@ class Effect(object):
 
         # Length of magnitudes array equals number of bands
 
-        left = self.mag_to_idx(self.magnitudes[0])
-        left_peak = self.mag_to_idx(self.magnitudes[1])
-        right = self.mag_to_idx(self.magnitudes[2])
-        right_peak = self.mag_to_idx(self.magnitudes[3])
+        left = self.mag_to_idx(self._magnitudes[0])
+        left_peak = self.mag_to_idx(self._magnitudes[1])
+        right = self.mag_to_idx(self._magnitudes[2])
+        right_peak = self.mag_to_idx(self._magnitudes[3])
 
         for i in range(0, self.height):
 
@@ -149,17 +175,13 @@ class Effect(object):
         self.processing = False
 
 
+def run():
+    effect = Effect()
 
-effect = Effect()
+    # Keep this thread alive
+    while not hyperion.abort():
+        time.sleep(1)
 
-spectrum = GstSpectrumDump(source=hyperion.args.get('audiosrc','autoaudiosrc'), vumeter=True, interval=effect.interval, quiet=True, bands=4, callback=effect.receive_magnitudes)
-spectrum.start()
+    effect.stop()
 
-sleep_time = effect.interval / 1000.0
-
-while not hyperion.abort():
-    hyperion.setColor(effect.ledsData)
-    time.sleep(sleep_time)
-
-# This must be called to stop the gstreamer
-spectrum.stop()
+run()

@@ -2,8 +2,10 @@
 This module is used to display the leds in a gui
 
 Created on 27.11.2014
+Last updated on 13.3.2016
 
 @author: Fabian Hertwig
+@authir: Juha Rantanen
 """
 from Tkinter import *
 import tkFont
@@ -22,9 +24,6 @@ def rgb_to_string(r, g, b):
 
 def createWindow(show_idx):
     # the empty window
-    # window_width = (hyperion.horizontal + 4) * _led_width
-    # window_height = (hyperion.vertical + 2) * _led_height
-
     window_width = 1920/2-100
     window_height = 1080/2-100
 
@@ -32,20 +31,7 @@ def createWindow(show_idx):
     canvas.pack()
 
     # list for the led representing rectangles
-    # leds_without_offset = []
-
-    # list for the led representing rectangles
     gui_leds = []
-
-    # calculate positions of the rectangles
-    # x_increase = _led_width
-    # y_increase = _led_height
-    # x_pos = _led_width
-    # y_pos = 0
-
-    # leave a space for the first corner led if necessary
-    # if not hyperion.corner_leds:
-    #     x_pos += x_increase
 
     gui_font = tkFont.Font(family='Helvetica',size=8)
 
@@ -63,44 +49,6 @@ def createWindow(show_idx):
 
         # leds_without_offset.append(rect)
         gui_leds.append(rect)
-
-        # # Update the x and y pos so the result is a rectangle of single rectangles
-        # if i < hyperion.horizontal:
-        #     # go one step to the right
-        #     x_pos += x_increase
-        # elif i < hyperion.horizontal + hyperion.vertical:
-        #     # go one step down
-        #     y_pos += y_increase
-        # elif i < (2 * hyperion.horizontal) + hyperion.vertical:
-        #     # go one step to the left
-        #     x_pos -= x_increase
-        # elif i < (2 * hyperion.horizontal) + (2 * hyperion.vertical):
-        #     # go one step up
-        #     y_pos -= y_increase
-
-        # # Handle the corner leds
-        # if not hyperion.corner_leds:
-        #     if i == hyperion.horizontal - 1:
-        #         # At the top right corner, leave the space for the corner led empty
-        #         y_pos += y_increase
-        #     elif i == hyperion.horizontal + hyperion.vertical - 1:
-        #         # At the bottom right corner, leave the space for the corner led empty
-        #         x_pos -= x_increase
-        #     elif i == 2 * hyperion.horizontal + hyperion.vertical - 1:
-        #         # At the bottom left corner, leave the space for the corner led empty
-        #         y_pos -= y_increase
-
-    # Handle offset and counterclockwise led arrangement
-    # leds_with_direction = leds_without_offset[:]
-    # if not hyperion.clockwise_direction:
-    #     # Reverse list but keep first entry (this is how hypercon does it)
-    #     leds_with_direction = leds_without_offset[len(leds_without_offset):0:-1]
-    #     leds_with_direction.insert(0, leds_without_offset[0])
-
-    # offset = hyperion.first_led_offset % hyperion.ledCount
-
-    # leds_with_offset = leds_with_direction[offset:]
-    # leds_with_offset.extend(leds_with_direction[:offset])
 
     # Call master which recalls itself to update the gui in the mainloop
     master.after(33, update_leds, canvas, gui_leds)

@@ -4,7 +4,7 @@ host. The effect algorithm is in the effect module. Change this file to develop 
 Change the host and port to your needs in this main file and also the values representing your led configuration.
 
 Created on 27.11.2014
-Last modified on 28.3.2015
+Last modified on 13.3.2016
 
 @author: Fabian Hertwig
 @author: Juha Rantanen
@@ -29,17 +29,19 @@ import operator
 # leds_in_clockwise_direction = True
 # has_corner_leds = False
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--gui", help="enable GUI", action="store_true")
-parser.add_argument("--idx", help="show led indexes in gui", action="store_true")
-parser.add_argument("--json", help="enable JSON client", action="store_true")
-parser.add_argument("--effect", help="select effect", default="vumeter")
-parser.add_argument("--config", help="path to config file", default="./hyperion.config.json")
-parser.add_argument("--host", help="JSON host (default localhost)", default="localhost")
-parser.add_argument("--port", help="JSON port (default 19444)", type=int, default=19444)
-parser.add_argument("--audiosrc", help="Gstreamer audio source string", default="autoaudiosrc")
-
-
+def create_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--gui", help="enable GUI", action="store_true")
+    parser.add_argument("--idx", help="show led indexes in gui", action="store_true")
+    parser.add_argument("--json", help="enable JSON client", action="store_true")
+    parser.add_argument("--proto", help="enable protobuf client (disables JSON)", action="store_true")
+    parser.add_argument("--effect", help="select effect", default="vumeter")
+    parser.add_argument("--config", help="path to config file", default="./hyperion.config.json")
+    parser.add_argument("--host", help="JSON host (default localhost)", default="localhost")
+    parser.add_argument("--port", help="JSON port (default 19444)", type=int, default=19444)
+    parser.add_argument("--audiosrc", help="Gstreamer audio source string", default="autoaudiosrc")
+    parser.add_argument("--interval", help="Interval for sending data (ms)", type=int, default=50)
+    return parser
 
 def run_effect(effect='effect'):
     """
@@ -57,11 +59,6 @@ def read_config(file_path):
         config = commentjson.load(config_json)
 
         leds = []
-
-        h_max = 0
-        v_max = 0
-        h_min = 99999
-        v_min = 99999
 
         xs = []
         ys = []
@@ -87,11 +84,22 @@ def read_config(file_path):
 
         for x in Set(xs):
             xcounts.append({'x': x, 'count': xs.count(x)})
+
+        if len(dict((xcount['count'], xcount) for xcount in xcounts).values()) > 1:
+            # Position might not be minimum for TV setups
             xcounts.sort(key=operator.itemgetter('count'))
             right = xcounts[len(xcounts)-2]
             left = xcounts[len(xcounts)-1]
-            if (right['x'] < left['x']):
-                left, right = right, left
+        else:
+            # Position should be minimum for matrix setups
+            xcounts.sort(key=operator.itemgetter('x'))
+            right = xcounts[len(xcounts)-1]
+            left = xcounts[0]
+
+
+        if (right['x'] < left['x']):
+            left, right = right, left
+
 
         ycounts = []
         top = None
@@ -99,11 +107,21 @@ def read_config(file_path):
 
         for y in Set(ys):
             ycounts.append({'y': y, 'count': ys.count(y)})
+
+        if len(dict((ycount['count'], ycount) for ycount in ycounts).values()) > 1:
+            # Position might not be minimum for TV setups
             ycounts.sort(key=operator.itemgetter('count'))
             bottom = ycounts[len(ycounts)-2]
             top = ycounts[len(ycounts)-1]
-            if (bottom['y'] < top['y']):
-                top, bottom = bottom, top
+        else:
+            # Position should be minimum for matrix setups
+            ycounts.sort(key=operator.itemgetter('y'))
+            bottom = ycounts[len(ycounts)-1]
+            top = ycounts[0]
+
+
+        if (bottom['y'] < top['y']):
+            top, bottom = bottom, top
 
         leds_left = []
         leds_right = []
@@ -145,19 +163,53 @@ def read_config(file_path):
 
         return (leds, leds_top, leds_right, leds_bottom, leds_left)
 
+def run_json(host, port, interval):
+    from modules.json_client import JsonClient
+    sleep_time = interval / 1000.0
+    json_client = JsonClient(host, port)
+    json_client.connect()
+    while not hyperion.abort():
+        json_client.send_led_data(hyperion.get_led_data())
+        time.sleep(sleep_time)
+    json_client.disconnect()
+
+def run_proto(host, port, interval):
+    # from lib.hyperion.Hyperion import Hyperion
+    # proto_client = Hyperion(host, port)
+    sleep_time = interval / 1000.0
+    while not hyperion.abort():
+        # proto_client.send_led_data(hyperion.get_led_data())
+        time.sleep(sleep_time)
+
 
 def main():
 
-    args = parser.parse_args()
+    args = create_parser().parse_args()
 
     leds, leds_top, leds_right, leds_bottom, leds_left = read_config(args.config)
 
     hyperion.init(leds, leds_top, leds_right, leds_bottom, leds_left)
 
-    if args.json:
-        from devkit import json_client
-        # Open the connection to the json server. Uncomment if you do not want to send data to the server.
-        json_client.open_connection(args.host, args.port)
+    json_thread = None
+    proto_thread = None
+
+    if args.json and not args.proto:
+        json_thread = Thread(
+            target=run_json, kwargs={
+                'host': args.host,
+                'port': args.port,
+                'interval': args.interval
+            }
+        )
+        json_thread.start()
+    elif args.proto:
+        proto_thread = Thread(target=run_proto, kwargs={
+            'host': args.host,
+            'port': args.port,
+            'interval': args.interval
+            }
+        )
+        proto_thread.start()
 
     with open('effects/' + args.effect + '.json') as effect_json:
         effect = json.load(effect_json)
@@ -171,7 +223,7 @@ def main():
     effect_thread.start()
 
     if args.gui:
-        from devkit import gui
+        from modules import gui
         gui.createWindow(args.idx)
 
         # After the window was closed abort the effect through the fake hyperion module
@@ -187,9 +239,12 @@ def main():
     # wait for the thread to stop
     effect_thread.join()
 
-    if args.json:
-        # close potential connections
-        json_client.close_connection()
+    if json_thread is not None:
+        json_thread.join()
+
+    if proto_thread is not None:
+        proto_thread.join()
+
     print("Exiting")
 
 

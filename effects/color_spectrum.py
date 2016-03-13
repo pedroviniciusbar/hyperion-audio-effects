@@ -196,43 +196,43 @@ class Effect(object):
 
         self.processing = True
 
-        # bass = self.normalize_mag(self._magnitudes[0])
-
         # sys.stdout.write("\033[K")
         # sys.stdout.write('\r' + int(self._magnitudes[0])*'|' )
 
         # Copy all values
         self._leds_data_temp[:] = self._leds_data[:]
 
-        # self.processing = False
-        # return
-
         # Loop leds
         for i in range(0, self.led_count):
 
-            self.current_mag = 0.0
-            self.norm_mag = 0
+            current_mag = 0.0
+            norm_mag = 0
 
             if self.bins[i] == self.bins[i+1]:
-                self.current_mag = self._magnitudes[self.bins[i]]
+                current_mag = self._magnitudes[self.bins[i]]
             else:
                 for k in range(self.bins[i], self.bins[i+1]):
-                    self.current_mag += self._magnitudes[k]
+                    current_mag += self._magnitudes[k]
 
-            self.norm_mag = self.normalize_mag(self.current_mag)
+            norm_mag = self.normalize_mag(current_mag)
 
-            for j in range(0,3):
+            for j in range(0, 3):
 
                 if not self.reverse:
-                    self._leds_data_temp[i*3+j] = (self._leds_data_temp[i*3+j] * self.norm_mag) >> 8
+                    self._leds_data_temp[i*3+j] = (
+                        self._leds_data_temp[i*3+j] * norm_mag
+                    ) >> 8
 
                 if self.mirror or self.reverse:
-                    self._leds_data_temp[-1-i*3-j] = (self._leds_data_temp[-1-i*3-j] * self.norm_mag) >> 8
+                    self._leds_data_temp[-1-i*3-j] = (
+                        self._leds_data_temp[-1-i*3-j] * norm_mag
+                    ) >> 8
 
         self.processing = False
 
 
 def run():
+    """ Run this effect until hyperion aborts. """
     effect = Effect()
 
     # Keep this thread alive

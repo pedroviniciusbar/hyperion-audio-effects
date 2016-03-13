@@ -11,7 +11,6 @@ from effects.spectrum_dump import GstSpectrumDump
 BLACK = (0, 0, 0)
 
 class Effect(object):
-
     def __init__(self):
         self.processing = False
         self._leds_data = bytearray(hyperion.ledCount * (0, 0, 0))
@@ -176,6 +175,7 @@ class Effect(object):
 
 
 def run():
+    """ Run this effect until hyperion aborts. """
     effect = Effect()
 
     # Keep this thread alive

@@ -1,3 +1,10 @@
+/**
+ * Node.js based configuration for led matrices to be used with Hyperion
+ *
+ * MIT License
+ * Copyright (c) 2016 RanzQ (Juha Rantanen)
+ */
+
 var parallel = false
 var width = 32
 var height = 8
@@ -11,21 +18,47 @@ var leds = []
 var hblock = 1.0 / width
 var vblock = 1.0 / height
 
+// var hmin = 999.0
+// var hmax = -999.0
+// var vmin = 999.0
+// var vmax = -999.0
+
+/**
+ * Adds led to the hyperion config led array
+ * @param {Number} index Index of the led
+ * @param {Number} x     Horizontal position in matrix
+ * @param {Number} y     Vertical position in matrix
+ */
 function addLed (index, x, y) {
   // if (debug) console.log(index + ':', x + ',', y)
+  var hscanMin = x * hblock
+  var hscanMax = (x + 1) * hblock
+  var vscanMin = y * vblock
+  var vscanMax = (y + 1) * vblock
+
+  // These were used for debug
+  // if (hscanMin < hmin) hmin = hscanMin
+  // if (hscanMax > hmax) hmax = hscanMax
+  // if (vscanMin < vmin) vmin = vscanMin
+  // if (vscanMax > vmax) vmax = vscanMax
+
   leds.push({
     index: index,
     hscan: {
-      minimum: x * hblock,
-      maximum: (x + 1) * hblock
+      minimum: hscanMin,
+      maximum: hscanMax
     },
     vscan: {
-      minimum: y * vblock,
-      maximum: (y + 1) * vblock
+      minimum: vscanMin,
+      maximum: vscanMax
     }
   })
 }
 
+/**
+ * Print help text
+ * @return {undefined}
+ */
 function printHelp () {
   console.log('Hyperion matrix configurator by RanzQ')
   console.log('-------------------------------------')
@@ -44,10 +77,12 @@ try {
   process.argv.forEach(function (val, index, array) {
     if (widthNext) {
       width = parseInt(val, 10)
+      hblock = 1.0 / width
       widthNext = false
       return
     } else if (heightNext) {
       height = parseInt(val, 10)
+      vblock = 1.0 / height
       heightNext = false
       return
     } else if (startNext) {
@@ -130,6 +165,11 @@ try {
       debugStr += '\n'
     }
     console.log(debugStr)
+    // console.log('------------')
+    // console.log('hmin:', hmin)
+    // console.log('hmax:', hmax)
+    // console.log('vmin:', vmin)
+    // console.log('vmax:', vmax)
   }
 } catch (e) {
   console.error('Invalid arguments:', e)

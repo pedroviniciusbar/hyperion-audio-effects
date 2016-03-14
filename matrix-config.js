@@ -1,5 +1,5 @@
 /**
- * Node.js based configuration for led matrices to be used with Hyperion
+ * Node.js based configurator for led matrices to be used with Hyperion
  *
  * MIT License
  * Copyright (c) 2016 RanzQ (Juha Rantanen)

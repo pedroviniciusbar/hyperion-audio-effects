@@ -253,7 +253,7 @@ class Effect(object):
 
                 # print "{} / {}\n".format(h, self.height)
 
-                c = self._leds_data[i:i+3]
+                c = self._leds_data[(i*3):(i*3)+3]
 
                 for y in range(h_max, h_max-h, -1):
                     self.set_pixel(i, y, c)

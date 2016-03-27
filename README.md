@@ -5,6 +5,7 @@ Hyperion audio effects
 
 Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdzwan/hyperion).
 
+- Update 27/3/2016: Config file (config.json), matrix configurator, protobuf support
 - Update 8/4/2015: Some improvements and cleanup, new video
 - Update 31/3/2015: New parameters and hyperion config file parsing
 

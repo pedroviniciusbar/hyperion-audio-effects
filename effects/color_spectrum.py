@@ -177,8 +177,9 @@ class Effect(object):
 
 
     def set_pixel(self, x, y, color):
-        i = y * self.width + x
-        self._image_data[i:i+3] = bytearray(color[:])
+        i = y * (self.width * 3) + x * 3
+        # print "{} {} {}".format(x, y, i)
+        self._image_data[i:i+3] = color[:]
 
     def receive_magnitudes(self, magnitudes):
 
@@ -248,20 +249,23 @@ class Effect(object):
 
                 h = self.get_height_from_mag(current_mag)
 
+                h_max = self.height-1
+
                 # print "{} / {}\n".format(h, self.height)
 
                 c = self._leds_data[i:i+3]
 
-                for y in range(self.height-1, self.height-h, -1):
+                for y in range(h_max, h_max-h, -1):
                     self.set_pixel(i, y, c)
 
-                for y in range(self.height-h, 0, -1):
+                for y in range(h_max-h, -1, -1):
                     self.set_pixel(i, y, BLACK_BYTES)
 
             # Matrix debug print
-            #
+
             # for i in range(0, self.height):
-            #     print ''.join('{:02x}'.format(x) for x in self._image_data[i * self.width:i*self.width+self.width])
+            #     j = (i * self.width * 3)
+            #     print ''.join('{:02x}'.format(x) for x in self._image_data[j:j + self.width * 3])
             # print self.width * '--'
 
         else:

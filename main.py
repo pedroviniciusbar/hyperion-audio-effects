@@ -1,18 +1,20 @@
-'''
-The main module which spawns a gui and a effect thread and opens a socket connection to the specified
-host. The effect algorithm is in the effect module. Change this file to develop your effect.
-Change the host and port to your needs in this main file and also the values representing your led configuration.
+"""
+The main module which spawns a gui and a effect thread and opens a socket
+connection to the specified host. The effect algorithm is in the effect
+module. Change this file to develop your effect. Change the host and port to
+your needs in this main file and also the values representing your led
+configuration.
 
 Created on 27.11.2014
 Last modified on 13.3.2016
 
 @author: Fabian Hertwig
 @author: Juha Rantanen
-'''
+"""
 
 from threading import Thread
 
-from modules import hyperion
+from app import hyperion
 
 import runpy
 import argparse
@@ -29,39 +31,75 @@ import operator
 # leds_in_clockwise_direction = True
 # has_corner_leds = False
 
-def create_parser():
+def create_parser(config):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--gui", help="enable GUI", action="store_true")
-    parser.add_argument("--idx", help="show led indexes in gui", action="store_true")
-    parser.add_argument("--json", help="enable JSON client", action="store_true")
-    parser.add_argument("--proto", help="enable protobuf client (disables JSON)", action="store_true")
-    parser.add_argument("--effect", help="select effect", default="vumeter")
-    parser.add_argument("--config", help="path to config file", default="./hyperion.config.json")
-    parser.add_argument("--host", help="JSON host (default localhost)", default="localhost")
-    parser.add_argument("--port", help="JSON port (default 19444)", type=int, default=19444)
-    parser.add_argument("--audiosrc", help="Gstreamer audio source string", default="autoaudiosrc")
-    parser.add_argument("--interval", help="Interval for sending data (ms)", type=int, default=50)
+    parser.add_argument("--gui",
+        help="enable GUI",
+        action="store_true")
+    parser.add_argument("--idx",
+        help="show led indexes in gui",
+        action="store_true")
+    parser.add_argument("--json",
+        help="enable JSON client",
+        action="store_true",
+        default=config['json'])
+    parser.add_argument("--proto",
+        help="enable protobuf client (disables JSON)",
+        default=config['proto'])
+    parser.add_argument("--effect",
+        help="select effect",
+        default=config['effect'])
+    parser.add_argument("--config",
+        help="path to config file",
+        default=config['config'])
+    parser.add_argument("--host",
+        help="JSON host (default localhost)",
+        default=config['host'])
+    parser.add_argument("--port",
+        help="JSON port (default 19444)",
+        type=int,
+        default=config['port'])
+    parser.add_argument("--audiosrc",
+        help="Gstreamer audio source string",
+        default=config['audiosrc'])
+    parser.add_argument("--interval",
+        help="Interval for sending data (ms)",
+        type=int,
+        default=config['interval'])
+    parser.add_argument("--matrix",
+        help="use matrix instead of TV setup",
+        action="store_true",
+        default=config['matrix'])
     return parser
 
 def run_effect(effect='effect'):
     """
-    Runs the module effect. Copy any hyperion effect code in this module or create your own.
-    Note that effects that call hyperion.setColor(r, g, b) or hyperion.setImage(img) are not supported.
+    Runs the module effect. Copy any hyperion effect code in this module or
+    create your own. Note that effects that call hyperion.setImage(img) are
+    not supported by the local gui, use hypersim instead.
     """
-    runpy.run_module("effects." + effect)
+    runpy.run_path("effects/" + effect +'.py')
 
 def read_config(file_path):
 
     """
-    Parses hyperion config file.
+    Parses config file.
     """
     with open(file_path) as config_json:
-        config = commentjson.load(config_json)
+        return commentjson.load(config_json)
+
+def read_hyperion_config(file_path):
+
+    """
+    Parses hyperion config file.
+    """
+    with open(file_path) as hyperion_config_json:
+        config = commentjson.load(hyperion_config_json)
 
         leds = []
 
-        xs = []
-        ys = []
+        x_coords = []
+        y_coords = []
 
         for led in config.get('leds', []):
             hscan = led['hscan']
@@ -70,10 +108,10 @@ def read_config(file_path):
             hmax = hscan['maximum']
             vmin = vscan['minimum']
             vmax = vscan['maximum']
-            h = round(((hmin + hmax) / 2 ) * 100, 2)
-            v = round(((vmin + vmax) / 2 ) * 100, 2)
-            xs.append(h)
-            ys.append(v)
+            h = round(((hmin + hmax) / 2) * 100, 2)
+            v = round(((vmin + vmax) / 2) * 100, 2)
+            x_coords.append(h)
+            y_coords.append(v)
             leds.append({'x': h, 'y': v})
 
 
@@ -82,8 +120,8 @@ def read_config(file_path):
         right = None
 
 
-        for x in Set(xs):
-            xcounts.append({'x': x, 'count': xs.count(x)})
+        for x in Set(x_coords):
+            xcounts.append({'x': x, 'count': x_coords.count(x)})
 
         if len(dict((xcount['count'], xcount) for xcount in xcounts).values()) > 1:
             # Position might not be minimum for TV setups
@@ -97,7 +135,7 @@ def read_config(file_path):
             left = xcounts[0]
 
 
-        if (right['x'] < left['x']):
+        if right['x'] < left['x']:
             left, right = right, left
 
 
@@ -105,8 +143,8 @@ def read_config(file_path):
         top = None
         bottom = None
 
-        for y in Set(ys):
-            ycounts.append({'y': y, 'count': ys.count(y)})
+        for y in Set(y_coords):
+            ycounts.append({'y': y, 'count': y_coords.count(y)})
 
         if len(dict((ycount['count'], ycount) for ycount in ycounts).values()) > 1:
             # Position might not be minimum for TV setups
@@ -120,7 +158,7 @@ def read_config(file_path):
             top = ycounts[0]
 
 
-        if (bottom['y'] < top['y']):
+        if bottom['y'] < top['y']:
             top, bottom = bottom, top
 
         leds_left = []
@@ -164,7 +202,7 @@ def read_config(file_path):
         return (leds, leds_top, leds_right, leds_bottom, leds_left)
 
 def run_json(host, port, interval):
-    from modules.json_client import JsonClient
+    from app.json_client import JsonClient
     sleep_time = interval / 1000.0
     json_client = JsonClient(host, port)
     json_client.connect()
@@ -174,19 +212,22 @@ def run_json(host, port, interval):
     json_client.disconnect()
 
 def run_proto(host, port, interval):
-    # from lib.hyperion.Hyperion import Hyperion
-    # proto_client = Hyperion(host, port)
+    from lib.hyperion.Hyperion import Hyperion
+    proto_client = Hyperion(host, port)
     sleep_time = interval / 1000.0
     while not hyperion.abort():
-        # proto_client.send_led_data(hyperion.get_led_data())
+        w, h, c = hyperion.get_image_data()
+        # print "Sending proto: {}, {}, {}\n".format(w, h, len(c))
+        # if w < 1 or h < 1 or len(c) is not w*h*3:
+        #     continue
+        proto_client.sendImage(w, h, c)
         time.sleep(sleep_time)
-
 
 def main():
 
-    args = create_parser().parse_args()
+    args = create_parser(read_config('./config.json')).parse_args()
 
-    leds, leds_top, leds_right, leds_bottom, leds_left = read_config(args.config)
+    leds, leds_top, leds_right, leds_bottom, leds_left = read_hyperion_config(args.config)
 
     hyperion.init(leds, leds_top, leds_right, leds_bottom, leds_left)
 
@@ -215,6 +256,7 @@ def main():
         effect = json.load(effect_json)
         effect_args = effect.get('args', {})
         effect_args['audiosrc'] = args.audiosrc
+        effect_args['matrix'] = args.matrix
         hyperion.set_args(effect_args)
 
     # create own thread for the effect
@@ -223,7 +265,7 @@ def main():
     effect_thread.start()
 
     if args.gui:
-        from modules import gui
+        from app import gui
         gui.createWindow(args.idx)
 
         # After the window was closed abort the effect through the fake hyperion module

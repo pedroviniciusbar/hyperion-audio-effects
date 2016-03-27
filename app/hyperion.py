@@ -41,7 +41,8 @@ def init(_leds, _leds_top, _leds_right, _leds_bottom, _leds_left):
     """
     Initialise the fake hyperion.
     """
-    global ledCount, leds, leds_top, leds_right, leds_bottom, leds_left, clockwise
+    global ledCount, leds, leds_top, leds_right, leds_bottom, leds_left
+    global _ledData, _imageData, _imageWidth, _imageHeight
 
     ledCount = len(_leds)
     leds = _leds
@@ -49,6 +50,13 @@ def init(_leds, _leds_top, _leds_right, _leds_bottom, _leds_left):
     leds_right = _leds_right
     leds_bottom = _leds_bottom
     leds_left = _leds_left
+
+    _imageWidth = len(leds_top) + 2
+    _imageHeight = len(leds_left)
+    _imageData = bytearray()
+
+    for i in range(_imageWidth * _imageHeight * 3):
+        _imageData.append(0)
 
     _ledData = bytearray()
     for x in range(ledCount * 3):
@@ -66,8 +74,15 @@ def get_led_data():
         imp.acquire_lock()
         led_data_copy = bytearray(_ledData)
         imp.release_lock()
-
     return led_data_copy
+
+def get_image_data():
+    img_data_copy = bytearray()
+    if _imageData:
+        imp.acquire_lock()
+        img_data_copy = bytearray(_imageData)
+        imp.release_lock()
+    return (_imageWidth, _imageHeight, img_data_copy)
 
 def set_args(_args):
     global args

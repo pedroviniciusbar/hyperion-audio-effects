@@ -4,17 +4,17 @@
     "args" :
     {
         "brightness" : 1.0,
-        "reverse" : false,
+        "reverse" : true,
         "magnitude-min": 0.0,
         "magnitude-max": 100.0,
         "color-speed": 0,
         "mirror": false,
-        "reverse": true,
         "start-index": 0,
         "band-width-exp": 2,
         "interval": 50,
         "rainbow": false,
-    	"color-low": "#00FF00",
-        "color-high": "#FF0000"
+        "color-low": "#00FF00",
+        "color-high": "#FF0000",
+        "debug": false
     }
 }

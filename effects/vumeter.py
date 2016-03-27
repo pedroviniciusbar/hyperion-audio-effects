@@ -1,6 +1,6 @@
 """VU meter effect."""
 
-from modules import hyperion
+from app import hyperion
 import time
 
 import webcolors

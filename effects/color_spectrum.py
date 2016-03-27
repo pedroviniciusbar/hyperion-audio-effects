@@ -1,6 +1,6 @@
 """Color spectrum effect."""
 
-from modules import hyperion
+from app import hyperion
 # import sys
 import time
 import colorsys
@@ -11,21 +11,28 @@ from effects.spectrum_dump import GstSpectrumDump
 
 BLACK = (0, 0, 0)
 
-
+BLACK_BYTES = bytearray(BLACK)
 
 class Effect(object):
     def __init__(self):
         # Get the parameters
         brightness = float(hyperion.args.get('brightness', 1.0))
         saturation = float(hyperion.args.get('saturation', 1.0))
-        self.mag_min = float(hyperion.args.get('magnitude-min', 30.0))
-        self.mag_max = float(hyperion.args.get('magnitude-max', 60.0))
+        self.mag_min = float(hyperion.args.get('magnitude-min', 40.0))
+        self.mag_max = float(hyperion.args.get('magnitude-max', 100.0))
         self.mirror = float(hyperion.args.get('mirror', True))
         self.reverse = float(hyperion.args.get('reverse', False))
         self.bw_exp = int(hyperion.args.get('band-width-exp', 5))
         self.start_index = int(hyperion.args.get('start-index', 0))
         self.increment = hyperion.args.get('color-speed', 3)
         self.interval = hyperion.args.get('interval', 100)
+        self.matrix = hyperion.args.get('matrix', False)
+        self.debug = hyperion.args.get('debug', False)
+
+        if self.matrix:
+            self.width = len(hyperion.leds_top) + 2
+            self.height = len(hyperion.leds_left)
+            print "W: {}, H: {}".format(self.width, self.height)
 
         self._magnitudes = None # store incoming messages
 
@@ -42,6 +49,9 @@ class Effect(object):
 
         if self.mirror:
             color_steps = color_steps / 2
+
+        if self.matrix:
+            color_steps = self.width
 
         colors = []
 
@@ -99,6 +109,13 @@ class Effect(object):
 
 
         self.led_count = hyperion.ledCount
+
+        self._image_data = None
+
+        if self.matrix:
+            self.led_count = self.width
+            self._image_data = bytearray(3 * self.width * self.height)
+            print "ImageData size: {}".format(len(self._image_data))
 
         if self.mirror:
             self.led_count = self.led_count / 2
@@ -158,6 +175,11 @@ class Effect(object):
     def __del__(self):
         self.stop()
 
+
+    def set_pixel(self, x, y, color):
+        i = y * self.width + x
+        self._image_data[i:i+3] = bytearray(color[:])
+
     def receive_magnitudes(self, magnitudes):
 
         # Don't update when processing
@@ -176,14 +198,16 @@ class Effect(object):
             # i = effect.increment
             # ld[:h] = ld[h-i:h] + ld[:h-i]
             # ld[h:] = ld[h+i:] + ld[h:h+i]
-            hyperion.setColor(self._leds_data_temp)
+            if self.matrix:
+                hyperion.setImage(self.width, self.height, self._image_data)
+            else:
+                hyperion.setColor(self._leds_data_temp)
 
     def stop(self):
         self._spectrum.stop()
 
     def normalize_mag(self, magnitude):
         # Normalize magnitude to 0-255
-
         if magnitude < self.mag_min:
             return 0
         if magnitude > self.mag_max:
@@ -191,6 +215,14 @@ class Effect(object):
 
         return int(((magnitude-self.mag_min) / (self.mag_max - self.mag_min)) * 255)
 
+    def get_height_from_mag(self, magnitude):
+        # Normalize magnitude to 0-height
+        if magnitude < self.mag_min:
+            return 0
+        if magnitude > self.mag_max:
+            return self.height
+
+        return int(((magnitude-self.mag_min) / (self.mag_max - self.mag_min)) * self.height)
 
     def update_leds(self):
 
@@ -199,34 +231,67 @@ class Effect(object):
         # sys.stdout.write("\033[K")
         # sys.stdout.write('\r' + int(self._magnitudes[0])*'|' )
 
-        # Copy all values
-        self._leds_data_temp[:] = self._leds_data[:]
+        if self.matrix:
+            # Loop leds
+            for i in range(0, self.width):
 
-        # Loop leds
-        for i in range(0, self.led_count):
+                current_mag = 0.0
+                norm_mag = 0
 
-            current_mag = 0.0
-            norm_mag = 0
+                if self.bins[i] == self.bins[i+1]:
+                    current_mag = self._magnitudes[self.bins[i]]
+                else:
+                    for k in range(self.bins[i], self.bins[i+1]):
+                        current_mag += self._magnitudes[k]
 
-            if self.bins[i] == self.bins[i+1]:
-                current_mag = self._magnitudes[self.bins[i]]
-            else:
-                for k in range(self.bins[i], self.bins[i+1]):
-                    current_mag += self._magnitudes[k]
 
-            norm_mag = self.normalize_mag(current_mag)
 
-            for j in range(0, 3):
+                h = self.get_height_from_mag(current_mag)
 
-                if not self.reverse:
-                    self._leds_data_temp[i*3+j] = (
-                        self._leds_data_temp[i*3+j] * norm_mag
-                    ) >> 8
+                # print "{} / {}\n".format(h, self.height)
 
-                if self.mirror or self.reverse:
-                    self._leds_data_temp[-1-i*3-j] = (
-                        self._leds_data_temp[-1-i*3-j] * norm_mag
-                    ) >> 8
+                c = self._leds_data[i:i+3]
+
+                for y in range(self.height-1, self.height-h, -1):
+                    self.set_pixel(i, y, c)
+
+                for y in range(self.height-h, 0, -1):
+                    self.set_pixel(i, y, BLACK_BYTES)
+
+            # Matrix debug print
+            #
+            # for i in range(0, self.height):
+            #     print ''.join('{:02x}'.format(x) for x in self._image_data[i * self.width:i*self.width+self.width])
+            # print self.width * '--'
+
+        else:
+            self._leds_data_temp[:] = self._leds_data[:]
+
+            # Loop leds
+            for i in range(0, self.led_count):
+
+                current_mag = 0.0
+                norm_mag = 0
+
+                if self.bins[i] == self.bins[i+1]:
+                    current_mag = self._magnitudes[self.bins[i]]
+                else:
+                    for k in range(self.bins[i], self.bins[i+1]):
+                        current_mag += self._magnitudes[k]
+
+                norm_mag = self.normalize_mag(current_mag)
+
+                for j in range(0, 3):
+
+                    if not self.reverse:
+                        self._leds_data_temp[i*3+j] = (
+                            self._leds_data_temp[i*3+j] * norm_mag
+                        ) >> 8
+
+                    if self.mirror or self.reverse:
+                        self._leds_data_temp[-1-i*3-j] = (
+                            self._leds_data_temp[-1-i*3-j] * norm_mag
+                        ) >> 8
 
         self.processing = False
 

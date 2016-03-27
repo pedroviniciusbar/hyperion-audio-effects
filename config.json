@@ -1,0 +1,11 @@
+{
+    "json": true,
+    "proto": false,
+    "effect": "color_spectrum",
+    "config": "sim.table.hyperion.config.json",
+    "host": "localhost",
+    "port": 19444,
+    "audiosrc": "autoaudiosrc",
+    "interval": 100,
+    "matrix": false
+}

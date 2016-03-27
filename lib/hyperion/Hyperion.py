@@ -59,7 +59,7 @@ class Hyperion(object):
         # close the socket
         self.__socket.close()
 
-    def sendColor(self, color, priority, duration = -1):
+    def sendColor(self, color, priority = 100, duration = -1):
         '''Send a static color to Hyperion
         - color    : integer value with the color as 0x00RRGGBB
         - priority : the priority channel to use
@@ -76,7 +76,7 @@ class Hyperion(object):
         # send the message 
         self.__sendMessage(request)
         
-    def sendImage(self, width, height, data, priority, duration = -1):
+    def sendImage(self, width, height, data, priority = 100, duration = -1):
         '''Send an image to Hyperion
         - width    : width of the image
         - height   : height of the image

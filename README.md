@@ -48,6 +48,9 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 - Config has a field `band-width-exp`, if you have performance issues, try with higher values (it sets FFT bin size to 2^x Hz, e.g. 2^3 = 8 Hz, affects on bass accuracy)
 - Set `mirror` to false if you want to use whole strip instead of splitting and mirroring
 - TODO: Adjustable colors
+- New config parameter `matrix`
+  - Modified version for matrix setups, need to use protobuf connection instead of json
+  - Disable black border detection in hyperion config for this to work properly
 
 \* Check this if you have pulseaudio: [#4](https://github.com/RanzQ/hyperion-audio-effects/issues/4#issuecomment-67764593)
 

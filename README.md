@@ -38,7 +38,7 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 5. Reboot
 6. Put `options snd-aloop index=-2` in end of `/etc/modprobe.d/alsa-base.conf` (the file doesn't exist, just create it) to prevent loopback device for getting first card index
 7. Enable loopback device `sudo modprobe snd-aloop` (and type line `snd-aloop` to /etc/modules to make it permanent)
-8. Put the included `.asoundrc` to your home folder and change the soundcard index on line 21 if needed (check `aplay -l`, for me `"hw:0,0"` is the analog line-out and `"hw:0,1"` is hdmi, this depends on if you use usb-audio etc.)
+8. Put the included `.asoundrc` to your home folder and change the soundcard index on line 21 if needed (check `aplay -l`, for me `"hw:0,0"` works, this depends on if you use usb-audio etc.)
 9. Reboot
 10. Now you must choose how to play some music. Kodi/OSMC doesn't support the loopback setup and Spotify can't be installed (maybe possible soon, check [spotifyd](https://github.com/Spotifyd/spotifyd)), so I went with mpd and mpc `sudo apt-get install mpd mpc`.
   - To get audio working with `mpd`, I needed to copy the alsa config for all users `sudo cp .asoundrc /etc/asound.conf`

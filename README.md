@@ -47,7 +47,7 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 10. Finally you can try the audio-effects :)
   - `cd hyperion-audio-effects/`
   - `python main.py --effect vumeter`
-  - The heavier effect works with setting `"band-width-exp": 4` but uses quite a lot of CPU. `python main.py --effect color_spectrum`
+  - The heavier effect works with setting `"band-width-exp": 4-5` but uses quite a lot of CPU. `python main.py --effect color_spectrum`
   - You can also modify `config.json` and just run `python main.py`
   - Exit by typing `x` and enter
 

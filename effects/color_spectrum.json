@@ -10,7 +10,7 @@
         "color-speed": 0,
         "mirror": false,
         "start-index": 0,
-        "band-width-exp": 2,
+        "band-width-exp": 5,
         "interval": 50,
         "rainbow": false,
         "color-low": "#00FF00",

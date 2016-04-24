@@ -17,7 +17,7 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 4. Install dependencies: `sudo pip install -r requirements.txt` (or use virtualenv if you like)
 5. Put `options snd-aloop index=-2` in end of `/etc/modprobe.d/alsa-base.conf` to prevent loopback device for getting first card index
 6. Enable loopback device `modprobe snd-aloop` (and type line `snd-aloop` to /etc/modules to make it permanent)
-7. Put the included `.asoundrc` to your home folder (backup old) and change the soundcard index if needed (`"hw:<card>,<device>"`, check `aplay -l`) *
+7. Put the included `.asoundrc` to your home folder (backup old if exists) and change the soundcard index if needed (`"hw:<card>,<device>"`, check `aplay -l`) *
 8. Reboot or reload alsa `sudo alsa force-reload`
 9. Run `python main.py` with options:
 	- `--config=<path>` path to hyperion config file (defaults to `./hyperion.config.json`)
@@ -28,6 +28,23 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 11. Levels should be drawn to gui, also sent to hyperion if json enabled
 12. Exit by closing the GUI or Ctrl+c
 
+### Installation and running on OSMC
+
+1. Enable audio so we can use alsa and loopback: Add `dtparam=audio=on` to `/boot/config.txt`.
+  - Why? https://discourse.osmc.tv/t/alsa-doesnt-work-after-last-update/10600
+2. Install Gstreamer 1.0, alsa, PyGI and pip: `sudo apt-get install libgstreamer1.0-0 gir1.2-gstreamer-1.0 gir1.2-glib-2.0 gir1.2-gst-plugins-base-1.0 gstreamer1.0-plugins-good gstreamer1.0-tools gstreamer1.0-alsa alsa-base alsa-utils python-gi python-pip`
+3. Install git (`sudo apt-get install git`) and clone this repo (`git clone https://github.com/RanzQ/hyperion-audio-effects.git`), or just download as zip and extract
+4. Install python dependencies `cd hyperion-audio-effects/ && sudo pip install -r requirements.txt`
+5. Reboot
+6. Put `options snd-aloop index=-2` in end of `/etc/modprobe.d/alsa-base.conf` (the file doesn't exist, just create it) to prevent loopback device for getting first card index
+7. Enable loopback device `sudo modprobe snd-aloop` (and type line `snd-aloop` to /etc/modules to make it permanent)
+8. Put the included `.asoundrc` to your home folder and change the soundcard index on line 21 if needed (check `aplay -l`, for me `"hw:0,0"` is the analog line-out and `"hw:0,1"` is hdmi, this depends on if you use usb-audio etc.)
+9. Reboot
+10. Now you must choose how to play some music. Kodi/OSMC doesn't support the loopback setup and Spotify can't be installed (maybe possible soon, check [spotifyd](https://github.com/Spotifyd/spotifyd)), so I went with mpd and mpc `sudo apt-get install mpd mpc`.
+  - To get audio working with `mpd`, I needed to copy the alsa config for all users `sudo cp .asoundrc /etc/asound.conf`
+  - After adding some music to `/var/lib/mpd/music` run `mpc ls | mpc add` to add all files to playlist, then `mpc play` (check `mpc help` for all commands).
+  - You can select between HDMI and Headphone jack with `amixer cset numid=3 2` (HDMI) / `amixer cset numid=3 1` (Headphone)
+ 
 ### Effects development
 1. Copy one of the script & config pairs in `effects/` (e.g. `myeffect.py` and `myeffect.json`) and then it can be passed as `--effect=myeffect` (json values can be read from `hyperion.args` like in normal hyperion effects)
 2. Adjust gstreamer parameters

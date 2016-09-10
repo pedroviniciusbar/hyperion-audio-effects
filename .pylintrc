@@ -1,4 +1,4 @@
 [MESSAGES CONTROL]
-disable=bad-continuation, import-error, invalid-name, locally-disabled,
-    missing-docstring, no-self-use, too-many-locals, too-many-branches,
-    too-many-instance-attributes, too-many-statements
+disable=bad-continuation, import-error, invalid-name, line-too-long,
+    locally-disabled, missing-docstring, no-self-use, too-many-locals,
+    too-many-branches, too-many-instance-attributes, too-many-statements

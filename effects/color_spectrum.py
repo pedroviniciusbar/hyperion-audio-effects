@@ -1,10 +1,11 @@
 """Color spectrum effect."""
 
-from app import hyperion
 # import sys
 import time
 import colorsys
 import math
+
+from app import hyperion
 
 from effects.spectrum_dump import GstSpectrumDump
 
@@ -129,8 +130,7 @@ class Effect(object):
         if self.leds_per_octave * self.octave_count < self.led_count:
             self.leds_per_octave += 1
             # Make last octave shorter
-            self.leds_per_last_octave = self.leds_per_octave
-            - (self.leds_per_octave * self.octave_count - self.led_count)
+            self.leds_per_last_octave = self.leds_per_octave - (self.leds_per_octave * self.octave_count - self.led_count)
 
         self.bins = []
 

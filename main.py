@@ -13,16 +13,15 @@ Last modified on 13.3.2016
 """
 
 from threading import Thread
-
-from app import hyperion
-
 import runpy
 import argparse
 import time
 import json
-import commentjson
 from sets import Set
 import operator
+import commentjson
+
+from app import hyperion
 
 # Change this according to your led configuration.
 # horizontal_led_num = 14
@@ -32,6 +31,9 @@ import operator
 # has_corner_leds = False
 
 def create_parser(config):
+    """
+    Creates ArgumentParser using config values as defaults.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--gui",
         help="enable GUI",
@@ -108,11 +110,11 @@ def read_hyperion_config(file_path):
             hmax = hscan['maximum']
             vmin = vscan['minimum']
             vmax = vscan['maximum']
-            h = round(((hmin + hmax) / 2) * 100, 2)
-            v = round(((vmin + vmax) / 2) * 100, 2)
-            x_coords.append(h)
-            y_coords.append(v)
-            leds.append({'x': h, 'y': v})
+            h_center = round(((hmin + hmax) / 2) * 100, 2)
+            v_center = round(((vmin + vmax) / 2) * 100, 2)
+            x_coords.append(h_center)
+            y_coords.append(v_center)
+            leds.append({'x': h_center, 'y': v_center})
 
 
         xcounts = []
@@ -287,9 +289,8 @@ def main():
     if proto_thread is not None:
         proto_thread.join()
 
-    print("Exiting")
+    print "Exiting"
 
 
 if __name__ == '__main__':
     main()
-

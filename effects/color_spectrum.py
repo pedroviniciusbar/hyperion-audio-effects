@@ -80,6 +80,8 @@ class Effect(object):
 
         self.processing = False
 
+        # This info is a bit outdated, now the octave split is more dynamic
+
         # Octaves:
         # 2: 32 - 64 Hz     =   1 * 32
         # 3: 64 - 128 Hz    =   2 * 32
@@ -90,9 +92,9 @@ class Effect(object):
         # 8: 2048 - 4096 Hz =  64 * 32
         # 9: 4096 - 8192 Hz = 128 * 32
 
-        # Band index  1         2         4         8        16        32        64        128       256
-        # Octave      |   #2    |   #3    |   #4    |   #5    |   #6    |   #7    |   #8    |   #9    |
-        # Band count  |    1    |    2    |    4    |    8    |    16   |   32    |   64    |   128   |
+        # Band index  1     2     4     8    16    32    64    128   256
+        # Octave      | #2  | #3  | #4  | #5  | #6  | #7  | #8  | #9  |
+        # Band count  |  1  |  2  |  4  |  8  |  16 | 32  | 64  | 128 |
 
         self.band_width = 2**self.bw_exp
 
@@ -127,7 +129,8 @@ class Effect(object):
         if self.leds_per_octave * self.octave_count < self.led_count:
             self.leds_per_octave += 1
             # Make last octave shorter
-            self.leds_per_last_octave = self.leds_per_octave - (self.leds_per_octave * self.octave_count - self.led_count)
+            self.leds_per_last_octave = self.leds_per_octave
+            - (self.leds_per_octave * self.octave_count - self.led_count)
 
         self.bins = []
 
@@ -159,7 +162,7 @@ class Effect(object):
         self.half = (hyperion.ledCount/2) * 3
 
         self._spectrum = GstSpectrumDump(
-            source=hyperion.args.get('audiosrc','autoaudiosrc'),
+            source=hyperion.args.get('audiosrc', 'autoaudiosrc'),
             vumeter=False,
             quiet=True,
             bands=self.bands,

@@ -15,12 +15,12 @@
 import sys
 import json
 import re
+import math
 from threading import Thread
 import gi
-gi.require_version('Gst', '1.0')
 from gi.repository import GObject, Gst, GLib
 
-import math
+gi.require_version('Gst', '1.0')
 
 GObject.threads_init()
 Gst.init(None)
@@ -106,6 +106,10 @@ class GstSpectrumDump(object):
         self.pipeline = None
         self.gainhits = 0
         self.origamp = self.amplify
+        self.bus = None
+        self.conn = None
+        self.loop = None
+        self.loop_thread = None
         if not self.source:
             self.source = 'autoaudiosrc'
             # defaultsrc = 'alsasrc'
@@ -128,14 +132,6 @@ class GstSpectrumDump(object):
                        'depth=16, signed=true ! audioconvert'
             self.source = pipeline.format(fifo)
 
-        # TODO: Read bands cutoff from options
-        # if self.bands > 78:
-        #     self.bands_cutoff = 78
-        #     # self.bands_cutoff = int(round(self.bands * (7/8.0), 0))
-        # else:
-            # self.bands_cutoff = None
-
-
 
     # From: https://github.com/Roadmaster/audio_test/blob/master/minimal_gstreamer_messages.py
     def parse_spectrum_structure(self, text):
@@ -143,16 +139,16 @@ class GstSpectrumDump(object):
         # This is the message name, which we don't need
         text = text.replace("spectrum, ", "")
         # name/value separator in json is : and not =
-        text = text.replace("=",": ")
+        text = text.replace("=", ": ")
         # Mutate the {} array notation from the structure to
         # [] notation for json.
         # Sometimes arrays are notated using < >
-        text = text.replace("{","[")
-        text = text.replace("}","]")
-        text = text.replace("<","[")
-        text = text.replace(">","]")
+        text = text.replace("{", "[")
+        text = text.replace("}", "]")
+        text = text.replace("<", "[")
+        text = text.replace(">", "]")
         # Remove a few stray semicolons that aren't needed
-        text = text.replace(";","")
+        text = text.replace(";", "")
         # Remove the data type fields, as json doesn't need them
         text = re.sub(r"\(.+?\)", "", text)
         # double-quote the identifiers
@@ -235,6 +231,8 @@ class GstSpectrumDump(object):
             downscaled = []
             incr = len(scaled) / float(maxlen)
             index = 0
+            # TODO: Figure out why v is not used
+            # pylint: disable=unused-variable
             for v in range(0, maxlen):
                 downscaled.append(scaled[int(round(index, 0))])
                 index += incr
@@ -242,7 +240,7 @@ class GstSpectrumDump(object):
         else:
             return scaled
 
-
+    # pylint: disable=unused-argument
     def on_message(self, bus, message):
         # We should return false if the pipeline has stopped
         if not self.running:
@@ -260,7 +258,8 @@ class GstSpectrumDump(object):
 
                 # mags = s.get_value('magnitude')
 
-                # PyGI doesn't fully support spectrum yet: https://bugzilla.gnome.org/show_bug.cgi?id=693168
+                # PyGI doesn't fully support spectrum yet:
+                # https://bugzilla.gnome.org/show_bug.cgi?id=693168
 
                 if self.multichannel:
                     mags = self.parse_spectrum_structure(s.to_string())['magnitude']
@@ -300,7 +299,7 @@ class GstSpectrumDump(object):
                 return True
             if not self.quiet:
                 try:
-                    print(' | '.join(('%.3f' % m for m in magnitudes)))
+                    print ' | '.join(('%.3f' % m for m in magnitudes))
                 except IOError:
                     self.loop.quit()
 

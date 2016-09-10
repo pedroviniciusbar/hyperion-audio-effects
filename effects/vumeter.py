@@ -1,12 +1,10 @@
 """VU meter effect."""
 
-from app import hyperion
 import time
-
 import webcolors
 
+from app import hyperion
 from effects.spectrum_dump import GstSpectrumDump
-
 
 BLACK = (0, 0, 0)
 
@@ -78,12 +76,8 @@ class Effect(object):
         for i in range(0, self.height):
             self.color_map.append(self.get_led_color(i))
 
-        # print self.color_start
-        # print self.color_end
-        # print self.color_map
-
         self._spectrum = GstSpectrumDump(
-            source=hyperion.args.get('audiosrc','autoaudiosrc'),
+            source=hyperion.args.get('audiosrc', 'autoaudiosrc'),
             vumeter=True,
             interval=self.interval,
             quiet=True,
@@ -116,7 +110,7 @@ class Effect(object):
 
     def mag_to_idx(self, magnitude):
         # Magnitude is 0-100, get index according to min and max
-        idx = int(((magnitude-self.level_min) / (self.level_max - self.level_min)) * self.height )
+        idx = int(((magnitude-self.level_min) / (self.level_max - self.level_min)) * self.height)
         return idx
 
 

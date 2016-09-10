@@ -75,6 +75,10 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
   - Modified version for matrix setups, need to use protobuf connection instead of json
   - Disable black border detection in hyperion config for this to work properly
 
+### Contribute
+
+Pull requests are welcome but try to follow the style in existing code and check yours using [pylint](https://www.pylint.org/) (`.pylintrc` included).
+
 \* Check this if you have pulseaudio: [#4](https://github.com/RanzQ/hyperion-audio-effects/issues/4#issuecomment-67764593)
 
 \** Windows istructions were removed since performance was poor due to the fact that Gstreamer is meant for Linux

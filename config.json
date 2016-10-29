@@ -6,6 +6,6 @@
     "host": "localhost",
     "port": 19444,
     "audiosrc": "autoaudiosrc",
-    "interval": 20,
+    "interval": 50,
     "matrix": false
 }

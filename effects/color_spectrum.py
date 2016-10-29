@@ -4,7 +4,6 @@
 import time
 import colorsys
 import math
-
 from app import hyperion
 
 from effects.spectrum_dump import GstSpectrumDump
@@ -19,16 +18,22 @@ class Effect(object):
         # Get the parameters
         brightness = float(hyperion.args.get('brightness', 1.0))
         saturation = float(hyperion.args.get('saturation', 1.0))
+        hue_from = float(hyperion.args.get('hue-from', 0.0))
+        hue_to = float(hyperion.args.get('hue-to', 1.0))
+
         self.mag_min = float(hyperion.args.get('magnitude-min', 40.0))
         self.mag_max = float(hyperion.args.get('magnitude-max', 100.0))
         self.mirror = float(hyperion.args.get('mirror', True))
         self.reverse = float(hyperion.args.get('reverse', False))
         self.bw_exp = int(hyperion.args.get('band-width-exp', 5))
         self.start_index = int(hyperion.args.get('start-index', 0))
-        self.increment = hyperion.args.get('color-speed', 3)
+        self.color_speed = hyperion.args.get('color-speed', 3)
         self.interval = hyperion.args.get('interval', 100)
         self.matrix = hyperion.args.get('matrix', False)
         self.debug = hyperion.args.get('debug', False)
+
+        if self.mirror:
+            print "Warning: 'mirror' mode needs a fix to flip the other side"
 
         if self.matrix:
             self.width = len(hyperion.leds_top) + 2
@@ -54,27 +59,7 @@ class Effect(object):
         if self.matrix:
             color_steps = self.width
 
-        colors = []
-
-        for i in range(color_steps):
-            hue = float(i)/color_steps
-            colors.append(colorsys.hsv_to_rgb(hue, saturation, brightness))
-
-        if self.mirror:
-            for i in range(color_steps):
-                hue = float(color_steps-i)/color_steps
-                colors.append(colorsys.hsv_to_rgb(hue, saturation, brightness))
-
-        if not self.reverse:
-            for i in range(color_steps):
-                c = colors[i]
-                self._leds_data += bytearray((int(255*c[0]), int(255*c[1]), int(255*c[2])))
-
-        if self.mirror or self.reverse:
-            for i in range(color_steps, 0, -1):
-                c = colors[i-1]
-                self._leds_data += bytearray((int(255*c[0]), int(255*c[1]), int(255*c[2])))
-
+        self._setup_leds_data(color_steps, saturation, brightness, hue_from, hue_to)
 
         # Temp buffer
         self._leds_data_temp = bytearray(self._leds_data)
@@ -159,7 +144,7 @@ class Effect(object):
 
         self.mag_min_orig = self.mag_min
 
-        self.half = (hyperion.ledCount/2) * 3
+        self._leds_data_center = (hyperion.ledCount/2) * 3
 
         self._spectrum = GstSpectrumDump(
             source=hyperion.args.get('audiosrc', 'autoaudiosrc'),
@@ -179,6 +164,72 @@ class Effect(object):
         self.stop()
 
 
+    def _setup_leds_data(self, color_steps, saturation=1.0, brightness=1.0, hue_from=0.0, hue_to=1.0):
+        self.colors = []
+
+        rainbow = False
+
+        if hue_from == 0.0 and hue_to == 1.0:
+            rainbow = True
+
+        for i in range(color_steps):
+            hue = 0.0
+            s = (float(i)/color_steps)
+
+            if rainbow:
+                hue = hue_from + s * (hue_to - hue_from)
+            else:
+                s = (float(i)/color_steps)
+                if s < 0.5:
+                    hue = hue_from + s * (hue_to - hue_from) * 2
+                else:
+                    hue = hue_from + (1.0 - s) * (hue_to - hue_from) * 2
+
+
+            self.colors.append(colorsys.hsv_to_rgb(hue, saturation, brightness))
+
+        if self.mirror:
+            for i in range(color_steps):
+                hue = float(color_steps-i)/color_steps
+                self.colors.append(colorsys.hsv_to_rgb(hue, saturation, brightness))
+
+        if not self.reverse:
+            for i in range(color_steps):
+                c = self.colors[i]
+                self._leds_data += bytearray((int(255*c[0]), int(255*c[1]), int(255*c[2])))
+
+        if self.mirror or self.reverse:
+            for i in range(color_steps, 0, -1):
+                c = self.colors[i-1]
+                self._leds_data += bytearray((int(255*c[0]), int(255*c[1]), int(255*c[2])))
+
+
+    def _rotate_colors(self):
+
+        if self.color_speed == 0:
+            return
+
+        ld = self._leds_data
+        c = self._leds_data_center
+        i = abs(self.color_speed) * 3
+        forward = self.color_speed > 0
+        ld = self._leds_data
+        l = len(ld)
+
+        if self.mirror:
+            if forward:
+                ld[:c] = ld[c-i:c] + ld[:c-i]
+                ld[c:] = ld[c+i:] + ld[c:c+i]
+            else:
+                ld[c:] = ld[c-i:c] + ld[:c-i]
+                ld[:c] = ld[c+i:] + ld[c:c+i]
+        else:
+            if forward:
+                ld[:] = ld[i:] + ld[:i]
+            else:
+                ld[:] = ld[:(l-i)] + ld[(l-i):]
+
+
     def set_pixel(self, x, y, color):
         i = y * (self.width * 3) + x * 3
         # print "{} {} {}".format(x, y, i)
@@ -195,17 +246,11 @@ class Effect(object):
             self._magnitudes = magnitudes
             self.update_leds()
 
-            # TODO: Loop colors if speed > 0
-            # Loop colors for both sides
-            # ld = effect._leds_data
-            # h = effect.half
-            # i = effect.increment
-            # ld[:h] = ld[h-i:h] + ld[:h-i]
-            # ld[h:] = ld[h+i:] + ld[h:h+i]
             if self.matrix:
                 hyperion.setImage(self.width, self.height, self._image_data)
             else:
                 hyperion.setColor(self._leds_data_temp)
+
 
     def stop(self):
         self._spectrum.stop()
@@ -272,6 +317,9 @@ class Effect(object):
             # print self.width * '--'
 
         else:
+
+            self._rotate_colors()
+
             self._leds_data_temp[:] = self._leds_data[:]
 
             # Loop leds

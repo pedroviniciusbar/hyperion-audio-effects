@@ -1,7 +1,7 @@
 Hyperion audio effects
 ======================
 
-##### Examples: https://www.youtube.com/watch?v=n-_0KG4EsY8 https://www.youtube.com/watch?v=HiAlv-mW9UI
+##### Examples: https://www.youtube.com/watch?v=AOv9BwbtA6w https://www.youtube.com/watch?v=HiAlv-mW9UI
 
 Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdzwan/hyperion).
 

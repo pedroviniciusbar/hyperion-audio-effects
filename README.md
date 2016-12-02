@@ -70,7 +70,7 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 - Adjust your sound volume if the leds are too dim or bright (no volume normalization yet)
 - Config has a field `band-width-exp`, if you have performance issues, try with higher values (it sets FFT bin size to 2^x Hz, e.g. 2^3 = 8 Hz, affects on bass accuracy)
 - Set `mirror` to false if you want to use whole strip instead of splitting and mirroring
-- TODO: Adjustable colors
+- Color range can be adjusted with `hue-from` and `hue-to` parameters (`0.0-1.0`)
 - New config parameter `matrix`
   - Modified version for matrix setups, need to use protobuf connection instead of json
   - Example config.json for matrix:

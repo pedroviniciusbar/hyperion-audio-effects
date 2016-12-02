@@ -73,7 +73,20 @@ Dev kit for creating audio visualizations for [hyperion](https://github.com/tvdz
 - TODO: Adjustable colors
 - New config parameter `matrix`
   - Modified version for matrix setups, need to use protobuf connection instead of json
-  - Disable black border detection in hyperion config for this to work properly
+  - Example config.json for matrix:
+```
+ {
+    "json": false,
+    "proto": true,
+    "effect": "color_spectrum",
+    "config": "/etc/hyperion/hyperion.config.json",
+    "host": "localhost",
+    "port": 19445,
+    "audiosrc": "autoaudiosrc",
+    "interval": 50,
+    "matrix": true
+}
+```
 
 ### Contribute
 

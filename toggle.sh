@@ -5,6 +5,7 @@
 PROCESS='python'
 CMDPATH='.' # set path to hyperion-audio-effects
 CMD='python main.py'
+HYPERION_ADDR='localhost:20444'
 
 if pidof -s -x $PROCESS > /dev/null
 then
@@ -12,7 +13,7 @@ then
     kill $(pgrep $PROCESS)
     hyperion-remote -c black > /dev/null
     sleep 3;
-    hyperion-remote -a localhost:20444 -c black > /dev/null
+    hyperion-remote -a $HYPERION_ADDR -c black > /dev/null
     echo "$PROCESS was running. Killed it."
 else
     # Starting process
